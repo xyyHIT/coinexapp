@@ -8,7 +8,7 @@ let signature = function(params, isMap, cb) {
       str += k + '=' + v + '&';
     }
   } else {
-    str = params;
+    str = params + '&';
   }
   str += 'secret_key=' + settings.secret_key;
   console.log("str ===>" + str);
