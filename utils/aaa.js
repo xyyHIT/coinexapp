@@ -2,8 +2,8 @@ var request = require('request');
 var signature = require('../utils/signature');
 var settings = require('../settings');
 var log4js = require('log4js');
+log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
-logger.level = 'info'; // default level is OFF - which means no logs at all.
 var async = require('async');
 var signature = require('../utils/signature');
 
@@ -38,20 +38,26 @@ async.each(buys, function(category, callback) {
 }, function(err) {
   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
     logger.info("findOrder ===>" + JSON.stringify(cb));
-    async.parallel({
-      sell: function(callback) {
-        placeIOCOrder(cb.myOut, 'sell', (cb) => {
-          callback(null, cb);
-        })
-      },
-      buy: function(callback) {
-        placeIOCOrder(cb.myIn, 'buy', (cb) => {
-          callback(null, cb);
-        })
-      }
-    }, (err, results) => {
-      logger.info("results ===>" + JSON.stringify(results));
-    })
+    if (cb.myOut && cb.myIn) {
+      async.parallel({
+        sell: function(callback) {
+          placeIOCOrder(cb.myOut, 'sell', (cb) => {
+            callback(null, cb);
+          })
+        },
+        buy: function(callback) {
+          placeIOCOrder(cb.myIn, 'buy', (cb) => {
+            callback(null, cb);
+          })
+        }
+      }, (err, results) => {
+        logger.info("results ===>" + JSON.stringify(results));
+        logger.info("-------------- 订单已完成，本次处理结束 ---------------");
+      })
+    } else {
+      logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+    }
+
   })
 })
 
@@ -78,8 +84,8 @@ function strMapToObj(strMap){
 }
 
 function findOrder(lowSellPrice, highBuyerPrice, cb) {
-  console.log(JSON.stringify(strMapToObj(lowSellPrice)));
-  console.log(JSON.stringify(strMapToObj(highBuyerPrice)));
+  logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
+  logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   for(let [k,v] of highBuyerPrice) {
     for(let index in v) {
@@ -119,6 +125,7 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
       }
     }
   }
+  cb({});
 }
 
 function placeIOCOrder(order, type, callback) {
