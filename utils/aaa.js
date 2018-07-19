@@ -33,10 +33,8 @@ async.each(buys, function(category, callback) {
     }
   })
 }, function(err) {
-  console.log("lowSellPrice ===>" + JSON.stringify(lowSellPrice));
-  console.log("highBuyerPrice ===>" + JSON.stringify(highBuyerPrice));
   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
-    console.log("findOrder ===>" + JSON.stringify(cb));
+    logger.info("findOrder ===>" + JSON.stringify(cb));
     async.parallel({
       sell: function(callback) {
         placeIOCOrder(cb.myOut, 'sell', (cb) => {
@@ -49,10 +47,12 @@ async.each(buys, function(category, callback) {
         })
       }
     }, (err, results) => {
-      console.log("results ===>" + JSON.stringify(results));
+      logger.info("results ===>" + JSON.stringify(results));
     })
   })
 })
+
+
 
 function keysort(key,sortType) {
   return function(a,b){
@@ -68,7 +68,6 @@ function keysort(key,sortType) {
 
 function findOrder(lowSellPrice, highBuyerPrice, cb) {
   // 循环买入低价的价格
-  var orderPaires = [];
   for(let [k,v] of highBuyerPrice) {
     for(let index in v) {
       var obj = v[index];
@@ -86,9 +85,9 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
             var inTakes = myInPrice*myOutCount*0.001;
             if (profit > (outTakes + inTakes)) {
               // 发现一组匹配
-              console.log("myIn ===> " + myInPrice +" "+ myInCount+" "+inTakes);
-              console.log("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
-              console.log("my profit ===> " + profit);
+              logger.info("myIn ===> " + myInPrice +" "+ myInCount+" "+inTakes);
+              logger.info("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
+              logger.info("my profit ===> " + profit);
               return cb({
                 myIn: {
                   market: key,
@@ -120,7 +119,7 @@ function placeIOCOrder(order, type, callback) {
     type: type
   }
   signature.signature(postBody, true, (cb) => {
-    console.log(type + " signature ===>" + JSON.stringify(cb));
+    logger.info(type + " signature ===>" + JSON.stringify(cb));
     let option = {
       url: 'https://api.coinex.com/v1/order/ioc',
       method: 'post',
@@ -134,7 +133,7 @@ function placeIOCOrder(order, type, callback) {
       if (err) {
 
       } else {
-        console.log(type + " cb ===>" + JSON.stringify(body));
+        logger.info(type + " cb ===>" + JSON.stringify(body));
         callback({result: body});
       }
     })
