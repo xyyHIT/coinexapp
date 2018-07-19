@@ -23,9 +23,12 @@ async.each(buys, function(category, callback) {
 
     } else {
       var ret = JSON.parse(body);
+      var currLowPrice = 1.0;
       ret.data.asks.forEach(element => {
         if (parseFloat(element[1]) >= 100) {
-          lowSellPrice.set(category, element);
+          if (currLowPrice > element[0]) {
+            lowSellPrice.set(category, element);
+          }
         }
       });
       highBuyerPrice.set(category, ret.data.bids);
@@ -66,7 +69,17 @@ function keysort(key,sortType) {
   }
 }
 
+function strMapToObj(strMap){
+  let obj= Object.create(null);
+  for (let[k,v] of strMap) {
+    obj[k] = v;
+  }
+  return obj;
+}
+
 function findOrder(lowSellPrice, highBuyerPrice, cb) {
+  console.log(JSON.stringify(strMapToObj(lowSellPrice)));
+  console.log(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   for(let [k,v] of highBuyerPrice) {
     for(let index in v) {
@@ -85,7 +98,7 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
             var inTakes = myInPrice*myOutCount*0.001;
             if (profit > (outTakes + inTakes)) {
               // 发现一组匹配
-              logger.info("myIn ===> " + myInPrice +" "+ myInCount+" "+inTakes);
+              logger.info("myIn ===> " + myInPrice +" "+ myOutCount+" "+inTakes);
               logger.info("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
               logger.info("my profit ===> " + profit);
               return cb({
