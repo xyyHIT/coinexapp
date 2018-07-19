@@ -33,10 +33,10 @@ async.each(buys, function(category, callback) {
     }
   })
 }, function(err) {
-  logger.info("lowSellPrice ===>" + JSON.stringify(lowSellPrice));
-  logger.info("highBuyerPrice ===>" + JSON.stringify(highBuyerPrice));
+  console.log("lowSellPrice ===>" + JSON.stringify(lowSellPrice));
+  console.log("highBuyerPrice ===>" + JSON.stringify(highBuyerPrice));
   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
-    logger.info("findOrder ===>" + JSON.stringify(cb));
+    console.log("findOrder ===>" + JSON.stringify(cb));
     async.parallel({
       sell: function(callback) {
         placeIOCOrder(cb.myOut, 'sell', (cb) => {
@@ -49,7 +49,7 @@ async.each(buys, function(category, callback) {
         })
       }
     }, (err, results) => {
-      logger.info("results ===>" + JSON.stringify(results));
+      console.log("results ===>" + JSON.stringify(results));
     })
   })
 })
@@ -86,9 +86,9 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
             var inTakes = myInPrice*myOutCount*0.001;
             if (profit > (outTakes + inTakes)) {
               // 发现一组匹配
-              logger.info("myIn ===> " + myInPrice +" "+ myInCount+" "+inTakes);
-              logger.info("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
-              logger.info("my profit ===> " + profit);
+              console.log("myIn ===> " + myInPrice +" "+ myInCount+" "+inTakes);
+              console.log("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
+              console.log("my profit ===> " + profit);
               return cb({
                 myIn: {
                   market: key,
@@ -120,7 +120,7 @@ function placeIOCOrder(order, type, callback) {
     type: type
   }
   signature.signature(postBody, true, (cb) => {
-    logger.info(type + " signature ===>" + JSON.stringify(cb));
+    console.log(type + " signature ===>" + JSON.stringify(cb));
     let option = {
       url: 'https://api.coinex.com/v1/order/ioc',
       method: 'post',
@@ -134,7 +134,7 @@ function placeIOCOrder(order, type, callback) {
       if (err) {
 
       } else {
-        logger.info(type + " cb ===>" + JSON.stringify(body));
+        console.log(type + " cb ===>" + JSON.stringify(body));
         callback({result: body});
       }
     })
