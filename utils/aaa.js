@@ -141,7 +141,7 @@ function placeIOCOrder(order, type, callback) {
   signature.signature(postBody, true, (cb) => {
     logger.info(type + " signature ===>" + JSON.stringify(cb));
     let option = {
-      url: 'https://api.coinex.com/v1/order/ioc',
+      url: 'https://api.coinex.com/v1/order/limit',
       method: 'post',
       headers: {
         authorization: cb.signature
