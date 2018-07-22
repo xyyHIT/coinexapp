@@ -16,7 +16,7 @@ var lowSellPrice = new Map();
 var highBuyerPrice = new Map();
 async.each(buys, function(category, callback) {
   let depth_options = {
-    url: 'https://api.coinex.com/v1/market/depth?market='+category+'&limit=5&merge=0.00000001',
+    url: 'https://api.coinex.com/v1/market/depth?market='+category+'&limit=10&merge=0.00000001',
     method: 'get'
   }
   request(depth_options, (err, response, body) => {
@@ -41,26 +41,29 @@ async.each(buys, function(category, callback) {
 }, function(err) {
   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
     logger.info("findOrder ===>" + JSON.stringify(cb));
-    if (cb.myOut && cb.myIn) {
-      async.parallel({
-        sell: function(callback) {
-          placeLimitOrder(cb.myOut, 'sell', (cb) => {
-            callback(null, cb);
-          })
-        },
-        buy: function(callback) {
-          placeLimitOrder(cb.myIn, 'buy', (cb) => {
-            callback(null, cb);
+    if (cb.length == 0) {
+      logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+    } else {
+      for(let index in cb) {
+        var order = cb[index];
+        if (order.myOut && order.myIn) {
+          async.parallel({
+            sell: function(callback) {
+              placeLimitOrder(order.myOut, 'sell', (cb) => {
+                callback(null, cb);
+              })
+            },
+            buy: function(callback) {
+              placeLimitOrder(order.myIn, 'buy', (cb) => {
+                callback(null, cb);
+              })
+            }
+          }, (err, results) => {
+            logger.info("订单已完成 ===>" + results);
           })
         }
-      }, (err, results) => {
-        logger.info("results ===>" + results);
-        logger.info("-------------- 订单已完成，本次处理结束 ---------------");
-      })
-    } else {
-      logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+      }
     }
-
   })
 })
 
@@ -99,13 +102,13 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
         for(let index in body) {
           var obj = body[index];
           if (obj.symbol == 'BTC') {
-            currCNY.set('BTC', obj.price_usd);
+            currCNY.set('CETBTC', obj.price_usd);
           } else if (obj.symbol == 'ETH') {
-            currCNY.set('ETH', obj.price_usd);
+            currCNY.set('CETETH', obj.price_usd);
           } else if (obj.symbol == 'BCH') {
-            currCNY.set('BCH', obj.price_usd);
+            currCNY.set('CETBCH', obj.price_usd);
           } else if (obj.symbol == 'USDT') {
-            currCNY.set('USDT', obj.price_usd);
+            currCNY.set('CETUSDT', obj.price_usd);
           }
         }
         callback(null, currCNY);
@@ -116,7 +119,7 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
       logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
       logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
       // 循环买入低价的价格
-      var total = 0;
+      var orders = [];
       for(let [k,v] of highBuyerPrice) {
         for(let index in v) {
           var obj = v[index];
@@ -129,19 +132,20 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
                 var myInPrice = parseFloat(in_obj[0]);
                 var myInCount = parseFloat(in_obj[1]);
                 // 如果卖出的价格高于我买入的价格 并且 卖出的总数能够大于
-                if (myOutCount >= myInCount && myInCount>=100  && myInCount<=500) {
+                if (myOutCount >= myInCount && myInCount<=500) {
                   // 发现一组匹配, 判断手续费是否足够
-                  logger.info(" >>>>>>>> ");
-                  var profit = myOutPrice*myOutCount*currCNY[key] - myInPrice*myOutCount*currCNY[k];
+                  var outUSD = currCNY.get(k);
+                  var inUSD = currCNY.get(key);
+                  var profit = myOutPrice*myOutCount*outUSD - myInPrice*myOutCount*inUSD;
                   console.log("profit ===> "+profit.valueOf());
-                  var outTakes = myOutPrice*myOutCount*0.001*currCNY[key];
-                  var inTakes = myInPrice*myOutCount*0.001*currCNY[k];
+                  var outTakes = myOutPrice*myOutCount*0.001*outUSD;
+                  var inTakes = myInPrice*myOutCount*0.001*inUSD;
                   if (profit > (outTakes + inTakes)) {
                     // 发现一组匹配
                     logger.info("myIn ===> " + myInPrice +" "+ myOutCount+" "+inTakes);
                     logger.info("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
                     logger.info("my profit ===> " + profit);
-                    callback(null, {
+                    orders.push({
                       myIn: {
                         market: key,
                         amount: myOutCount,
@@ -160,10 +164,9 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
           }
         }
       }
-      callback(null, {});
+      callback(null, orders);
     }
   ], function(err, result) {
-    logger.info("result ===> " + result);
     cb(result);
   })
 }
