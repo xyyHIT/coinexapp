@@ -44,24 +44,29 @@ async.each(buys, function(category, callback) {
     if (cb.length == 0) {
       logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
     } else {
+      var maxProfit = 0;
+      var maxProfitOrder = null;
       for(let index in cb) {
         var order = cb[index];
-        if (order.myOut && order.myIn) {
-          async.parallel({
-            sell: function(callback) {
-              placeLimitOrder(order.myOut, 'sell', (cb) => {
-                callback(null, cb);
-              })
-            },
-            buy: function(callback) {
-              placeLimitOrder(order.myIn, 'buy', (cb) => {
-                callback(null, cb);
-              })
-            }
-          }, (err, results) => {
-            logger.info("订单已完成 ===>" + results);
-          })
+        if (order.profit > maxProfit) {
+          maxProfitOrder = order;
         }
+      }
+      if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
+        async.parallel({
+          sell: function(callback) {
+            placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
+              callback(null, cb);
+            })
+          },
+          buy: function(callback) {
+            placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
+              callback(null, cb);
+            })
+          }
+        }, (err, results) => {
+          logger.info("订单已完成 ===>" + JSON.stringify(results));
+        })
       }
     }
   })
@@ -146,15 +151,18 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
                     logger.info("myOut ===> " + myOutPrice +" "+ myOutCount+" "+outTakes);
                     logger.info("my profit ===> " + profit);
                     orders.push({
+                      profit: profit,
                       myIn: {
                         market: key,
                         amount: myOutCount,
-                        price: myInPrice
+                        price: myInPrice,
+                        usd: inUSD
                       },
                       myOut: {
                         market: k,
                         amount: myOutCount,
-                        price: myOutPrice
+                        price: myOutPrice,
+                        usd: outUSD
                       }
                     })
                   }
