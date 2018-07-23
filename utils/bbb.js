@@ -9,8 +9,7 @@ var async = require('async');
 var signature = require('../utils/signature');
 
 
-var buys = ["CETBCH","CETBTC","CETETH","CETUSDT"];
-var apis = ["bitcoin-cash","bitcoin","ethereum","tether"];
+var buys = ["CETBCH","CETBTC","CETETH"];
 
  //1. 获取最新价格
  var lowSellPrice = new Map();
@@ -112,8 +111,6 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
             currCNY.set('CETETH', obj.price_usd);
           } else if (obj.symbol == 'BCH') {
             currCNY.set('CETBCH', obj.price_usd);
-          } else if (obj.symbol == 'USDT') {
-            currCNY.set('CETUSDT', obj.price_usd);
           }
         }
         callback(null, currCNY);
