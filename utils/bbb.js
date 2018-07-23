@@ -12,71 +12,67 @@ var signature = require('../utils/signature');
 var buys = ["CETBCH","CETBTC","CETETH","CETUSDT"];
 var apis = ["bitcoin-cash","bitcoin","ethereum","tether"];
 
-  //1. 获取最新价格
-  var lowSellPrice = new Map();
-  var highBuyerPrice = new Map();
-  async.each(buys, function(category, callback) {
-    let depth_options = {
-      url: 'https://api.coinex.com/v1/market/depth?market='+category+'&limit=10&merge=0.00000001',
-      method: 'get'
-    }
-    request(depth_options, (err, response, body) => {
-      logger.info(category + " info body ===> " + body);
-      if (err) {
+ //1. 获取最新价格
+ var lowSellPrice = new Map();
+ var highBuyerPrice = new Map();
+ async.each(buys, function(category, callback) {
+   let depth_options = {
+     url: 'https://api.coinex.com/v1/market/depth?market='+category+'&limit=10&merge=0.00000001',
+     method: 'get'
+   }
+   request(depth_options, (err, response, body) => {
+     logger.debug(category + " info body ===> " + body);
+     if (err) {
 
-      } else {
-        var ret = JSON.parse(body);
-        // var currLowPrice = 1.0;
-        // ret.data.asks.forEach(element => {
-        //   if (parseFloat(element[1]) >= 100) {
-        //     if (currLowPrice > element[0]) {
-        //       lowSellPrice.set(category, element);
-        //     }
-        //   }
-        // });
-        lowSellPrice.set(category, ret.data.asks);
-        highBuyerPrice.set(category, ret.data.bids);
-        callback(null);
-      }
-    })
-  }, function(err) {
-    findOrder(lowSellPrice, highBuyerPrice, function(cb) {
-      logger.info("findOrder ===>" + JSON.stringify(cb));
-      if (cb.length == 0) {
-        logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
-      } else {
-        var maxProfit = 0;
-        var maxProfitOrder = null;
-        for(let index in cb) {
-          var order = cb[index];
-          if (order.profit > maxProfit) {
-            maxProfitOrder = order;
-          }
-        }
-        order_logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
-        if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
-          async.parallel({
-            sell: function(callback) {
-              placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
-                callback(null, cb);
-              })
-            },
-            buy: function(callback) {
-              placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
-                callback(null, cb);
-              })
-            }
-          }, (err, results) => {
-            order_logger.info("订单已完成 ===>" + JSON.stringify(results));
-          })
-        }
-      }
-    })
-  })
-
-
-
-
+     } else {
+       var ret = JSON.parse(body);
+       // var currLowPrice = 1.0;
+       // ret.data.asks.forEach(element => {
+       //   if (parseFloat(element[1]) >= 100) {
+       //     if (currLowPrice > element[0]) {
+       //       lowSellPrice.set(category, element);
+       //     }
+       //   }
+       // });
+       lowSellPrice.set(category, ret.data.asks);
+       highBuyerPrice.set(category, ret.data.bids);
+       callback(null);
+     }
+   })
+ }, function(err) {
+   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
+     logger.debug("findOrder ===>" + JSON.stringify(cb));
+     if (cb.length == 0) {
+       logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+     } else {
+       var maxProfit = 0;
+       var maxProfitOrder = null;
+       for(let index in cb) {
+         var order = cb[index];
+         if (order.profit > maxProfit) {
+           maxProfitOrder = order;
+         }
+       }
+       logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
+       if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
+         async.parallel({
+           buy: function(callback) {
+             placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
+               callback(null, cb);
+             })
+           },
+           sell: function(callback) {
+             placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
+               callback(null, cb);
+             })
+           }
+         }, (err, results) => {
+           logger.info("订单已完成 ===>" + JSON.stringify(results));
+         })
+       }
+     }
+   })
+ })
 
 function keysort(key,sortType) {
   return function(a,b){
