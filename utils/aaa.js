@@ -58,13 +58,13 @@ function intervalFunc() {
         logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
         if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
           async.parallel({
-            sell: function(callback) {
-              placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
+            buy: function(callback) {
+              placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
                 callback(null, cb);
               })
             },
-            buy: function(callback) {
-              placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
+            sell: function(callback) {
+              placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
                 callback(null, cb);
               })
             }

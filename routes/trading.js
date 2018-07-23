@@ -4,15 +4,46 @@ var request = require('request');
 var settings = require('../settings');
 var signature = require('../utils/signature');
 
+router.post('/place_market', (req, res, next) => {
+  let currTime = Date.now();
+  var postBody = {
+    access_id: settings.access_id,
+    amount: req.body.amount,
+    market: req.body.market,
+    tonce: currTime,
+    type: req.body.type
+  }
+  signature.signature(postBody, true, (cb) => {
+    console.log("cb ===>" + JSON.stringify(cb));
+    let options = {
+      url: 'https://api.coinex.com/v1/order/market',
+      method: 'post',
+      headers: {
+        authorization: cb.signature
+      },
+      json: true,
+      body: postBody
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+        ret.json({result: err});
+      } else {
+        console.log(JSON.stringify(body));
+        res.json(body);
+      }
+    })
+  })
+})
+
 router.post('/place_limit', (req, res, next) => {
   let currTime = Date.now();
   var postBody = {
     access_id: settings.access_id,
-    amount: "15633.70280064",
-    market: "CETBCH",
-    price: "0.0001391",
+    amount: req.body.amount,
+    market: req.body.market,
+    price: req.body.price,
     tonce: currTime,
-    type: "sell"
+    type: req.body.type
   }
   // var bodyMap = new Map();
   // bodyMap.set('access_id', settings.access_id);
@@ -25,7 +56,7 @@ router.post('/place_limit', (req, res, next) => {
   signature.signature(postBody, true, (cb) => {
     console.log("cb ===>" + JSON.stringify(cb));
     let options = {
-      url: 'https://api.coinex.com/v1/order/ioc',
+      url: 'https://api.coinex.com/v1/order/limit',
       method: 'post',
       headers: {
         authorization: cb.signature
