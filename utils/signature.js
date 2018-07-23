@@ -10,7 +10,7 @@ let signature = function(params, isJSON, cb) {
   } else {
     str = params + '&';
   }
-  str += 'secret_key=' + settings.secret_key;
+  str += 'secret_key=' + settings.coinex.secret_key;
   cb({signature: md5(str).toUpperCase()});
 }
 

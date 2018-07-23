@@ -7,9 +7,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var market = require('./routes/market');
-var account = require('./routes/account');
-var trading = require('./routes/trading');
+var coinex = require('./routes/coinex');
 
 var app = express();
 
@@ -27,9 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/market', market);
-app.use('/account', account);
-app.use('/trading', trading);
+app.use('/coinex', coinex);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

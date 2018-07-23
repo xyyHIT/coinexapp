@@ -4,10 +4,7 @@ var settings = require('../settings');
 var log4js = require('log4js');
 log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
-var order_logger = log4js.getLogger('order');
 var async = require('async');
-var signature = require('../utils/signature');
-
 
 var buys = ["CETBCH","CETBTC","CETETH"];
 
@@ -183,7 +180,7 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
 function placeLimitOrder(order, type, callback) {
   let currTime = Date.now();
   let postBody = {
-    access_id: settings.access_id,
+    access_id: settings.coinex.access_id,
     amount: String(order.amount),
     market: order.market,
     price: String(order.price),
