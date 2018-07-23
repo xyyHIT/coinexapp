@@ -9,7 +9,7 @@ module.exports = {
       app: { type: 'file', filename: 'application.log' }
     },
     categories: {
-      default: { appenders: [ 'out', 'app' ], level: 'debug' }
+      default: { appenders: [ 'out', 'app' ], level: 'info' }
     }
   }
 }
