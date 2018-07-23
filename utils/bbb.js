@@ -11,7 +11,10 @@ var signature = require('../utils/signature');
 
 var buys = ["CETBCH","CETBTC","CETETH"];
 
- //1. 获取最新价格
+setInterval(intervalFunc, 500);
+
+function intervalFunc() {
+   //1. 获取最新价格
  var lowSellPrice = new Map();
  var highBuyerPrice = new Map();
  async.each(buys, function(category, callback) {
@@ -72,6 +75,8 @@ var buys = ["CETBCH","CETBTC","CETETH"];
      }
    })
  })
+}
+
 
 function keysort(key,sortType) {
   return function(a,b){
