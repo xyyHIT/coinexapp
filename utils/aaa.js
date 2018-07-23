@@ -52,6 +52,7 @@ async.each(buys, function(category, callback) {
           maxProfitOrder = order;
         }
       }
+      logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
       if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
         async.parallel({
           sell: function(callback) {
