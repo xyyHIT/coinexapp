@@ -55,7 +55,7 @@ var apis = ["bitcoin-cash","bitcoin","ethereum","tether"];
        }
        logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
        if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
-         async.parallel({
+         async.series({
            buy: function(callback) {
              placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
                callback(null, cb);
