@@ -132,7 +132,7 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
           var obj = v[index];
           var myOutPrice = parseFloat(obj[0]);
           var myOutCount = parseFloat(obj[1]);
-          if (myOutCount >= 100 && myOutCount <= 500) {
+          if (myOutCount >= 100 && myOutCount <= 1000) {
             for(let [key, value] of lowSellPrice) {
               for(let i in value) {
                 var in_obj = value[i];
