@@ -177,9 +177,9 @@ function strMapToObj(strMap) {
 }
 
 function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
-  logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
-  logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
+  logger.debug("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
+  logger.debug(JSON.stringify(strMapToObj(lowSellPrice)));
+  logger.debug(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   var orders = [];
   for (let [k, v] of highBuyerPrice) {
