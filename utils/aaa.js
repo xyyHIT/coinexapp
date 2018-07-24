@@ -145,7 +145,9 @@ function chargeBalance(currCNY, callback) {
         for (let coin in body.data) {
           var balance = body.data[coin];
           if (coin == 'BTC') {
+            logger.info("BTC ininini");
             let sum = balance.available * currCNY.get(coin);
+            logger.info("BTC ininini  sum===>" + sum);
             if (sum > maxBalance) {
               maxCoin = {
                 coin: 'CETBTC',
