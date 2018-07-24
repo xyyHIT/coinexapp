@@ -7,108 +7,113 @@ var logger = log4js.getLogger(__filename);
 var async = require('async');
 
 var buys = ["CETBCH", "CETBTC", "CETETH", "CETUSDT"];
+setInterval(intervalFunc, 5000);
 
-//1. 获取最新价格
-let option = {
-  url: 'https://api.coinmarketcap.com/v1/ticker/',
-  method: 'get',
-  json: true
-}
-var currCNY = new Map();
-request(option, (err, response, body) => {
-  for (let index in body) {
-    var obj = body[index];
-    if (obj.symbol == 'BTC') {
-      currCNY.set('CETBTC', obj.price_usd);
-    } else if (obj.symbol == 'ETH') {
-      currCNY.set('CETETH', obj.price_usd);
-    } else if (obj.symbol == 'BCH') {
-      currCNY.set('CETBCH', obj.price_usd);
-    } else if (obj.symbol == 'USDT') {
-      currCNY.set('CETUSDT', obj.price_usd);
-    }
+function intervalFunc() {
+  //1. 获取最新价格
+  let option = {
+    url: 'https://api.coinmarketcap.com/v1/ticker/',
+    method: 'get',
+    json: true
   }
-  //2. 开始寻找符合的价格
-  var lowSellPrice = new Map();
-  var highBuyerPrice = new Map();
-  async.each(buys, function (category, callback) {
-    let depth_options = {
-      url: 'https://api.coinex.com/v1/market/depth?market=' + category + '&limit=10&merge=0.00000001',
-      method: 'get'
-    }
-    request(depth_options, (err, response, body) => {
-      logger.debug(category + " info body ===> " + body);
-      if (err) {
-
-      } else {
-        var ret = JSON.parse(body);
-        // var currLowPrice = 1.0;
-        // ret.data.asks.forEach(element => {
-        //   if (parseFloat(element[1]) >= 100) {
-        //     if (currLowPrice > element[0]) {
-        //       lowSellPrice.set(category, element);
-        //     }
-        //   }
-        // });
-        lowSellPrice.set(category, ret.data.asks);
-        highBuyerPrice.set(category, ret.data.bids);
-        callback(null);
+  var currCNY = new Map();
+  request(option, (err, response, body) => {
+    for (let index in body) {
+      var obj = body[index];
+      if (obj.symbol == 'BTC') {
+        currCNY.set('CETBTC', obj.price_usd);
+      } else if (obj.symbol == 'ETH') {
+        currCNY.set('CETETH', obj.price_usd);
+      } else if (obj.symbol == 'BCH') {
+        currCNY.set('CETBCH', obj.price_usd);
+      } else if (obj.symbol == 'USDT') {
+        currCNY.set('CETUSDT', obj.price_usd);
       }
-    })
-  }, function (err) {
-    if (err) {
-      logger.error(" err ===> " + JSON.stringify(err));
-    } else {
-      findOrder(lowSellPrice, highBuyerPrice, currCNY, function (cb) {
-        logger.debug("findOrder ===>" + JSON.stringify(cb));
-        if (cb.length == 0) {
-          logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+    }
+    //2. 开始寻找符合的价格
+    var lowSellPrice = new Map();
+    var highBuyerPrice = new Map();
+    async.each(buys, function (category, callback) {
+      let depth_options = {
+        url: 'https://api.coinex.com/v1/market/depth?market=' + category + '&limit=10&merge=0.00000001',
+        method: 'get'
+      }
+      request(depth_options, (err, response, body) => {
+        logger.debug(category + " info body ===> " + body);
+        if (err) {
+
         } else {
-          var maxProfit = 0;
-          var maxProfitOrder = null;
-          for (let index in cb) {
-            var order = cb[index];
-            if (order.profit > maxProfit) {
-              maxProfitOrder = order;
-            }
-          }
-          logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
-          if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
-            async.series({
-              buy: function (callback) {
-                placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
-                  if (cb.code == 107) {
-                    callback(107, cb);
-                  } else {
-                    callback(null, cb);
-                  }
-                })
-              },
-              sell: function (callback) {
-                placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
-                  if (cb.code == 107) {
-                    callback(107, cb);
-                  } else {
-                    callback(null, cb);
-                  }
-                })
-              }
-            }, (err, results) => {
-              if (err) {
-                logger.info("errr ===> " + JSON.stringify(err));
-                chargeBalance(currCNY, function (chargeCallback) {
-                  logger.info("充值完成 ===>" + JSON.stringify(chargeCallback));
-                })
-              } else {
-                logger.info("订单已完成 ===>" + JSON.stringify(results));
-              }
-            })
-          }
+          var ret = JSON.parse(body);
+          // var currLowPrice = 1.0;
+          // ret.data.asks.forEach(element => {
+          //   if (parseFloat(element[1]) >= 100) {
+          //     if (currLowPrice > element[0]) {
+          //       lowSellPrice.set(category, element);
+          //     }
+          //   }
+          // });
+          lowSellPrice.set(category, ret.data.asks);
+          highBuyerPrice.set(category, ret.data.bids);
+          callback(null);
         }
       })
-    }
+    }, function (err) {
+      if (err) {
+        logger.error(" err ===> " + JSON.stringify(err));
+      } else {
+        findOrder(lowSellPrice, highBuyerPrice, currCNY, function (cb) {
+          logger.debug("findOrder ===>" + JSON.stringify(cb));
+          if (cb.length == 0) {
+            logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+          } else {
+            var maxProfit = 0;
+            var maxProfitOrder = null;
+            for (let index in cb) {
+              var order = cb[index];
+              if (order.profit > maxProfit) {
+                maxProfitOrder = order;
+              }
+            }
+            logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
+            if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
+              async.series({
+                buy: function (callback) {
+                  placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
+                    if (cb.code == 107) {
+                      callback(107, cb);
+                    } else {
+                      callback(null, cb);
+                    }
+                  })
+                },
+                sell: function (callback) {
+                  placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
+                    if (cb.code == 107) {
+                      callback(107, cb);
+                    } else {
+                      callback(null, cb);
+                    }
+                  })
+                }
+              }, (err, results) => {
+                if (err) {
+                  logger.info("errr ===> " + JSON.stringify(err));
+                  chargeBalance(currCNY, function (chargeCallback) {
+                    logger.info("充值完成 ===>" + JSON.stringify(chargeCallback));
+                  })
+                } else {
+                  logger.info("订单已完成 ===>" + JSON.stringify(results));
+                }
+              })
+            }
+          }
+        })
+      }
+    })
   })
-})
+}
+
+
 
 function chargeBalance(currCNY, callback) {
   logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
