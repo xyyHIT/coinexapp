@@ -95,6 +95,7 @@ request(option, (err, response, body) => {
               }
             }, (err, results) => {
               if (err) {
+                logger.info("errr ===> " + JSON.stringify(err));
                 chargeBalance(currCNY, function (chargeCallback) {
                   logger.info("充值完成 ===>" + JSON.stringify(chargeCallback));
                 })
@@ -256,9 +257,7 @@ function placeLimitOrder(order, type, callback) {
 
       } else {
         logger.info(type + " cb ===>" + JSON.stringify(body));
-        callback({
-          result: body
-        });
+        callback(body);
       }
     })
   })
