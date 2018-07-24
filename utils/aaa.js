@@ -7,7 +7,7 @@ var logger = log4js.getLogger(__filename);
 var async = require('async');
 
 var buys = ["CETBCH", "CETBTC", "CETETH", "CETUSDT"];
-setInterval(intervalFunc, 5000);
+setInterval(intervalFunc, 1000);
 
 function intervalFunc() {
   //1. 获取最新价格
