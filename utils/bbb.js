@@ -6,7 +6,7 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
 var async = require('async');
 
-var buys = ["CETBCH","CETBTC","CETETH"];
+var buys = ["CETBCH","CETBTC","CETETH","CETUSDT"];
 
 setInterval(intervalFunc, 500);
 
@@ -113,6 +113,8 @@ function findOrder(lowSellPrice, highBuyerPrice, cb) {
             currCNY.set('CETETH', obj.price_usd);
           } else if (obj.symbol == 'BCH') {
             currCNY.set('CETBCH', obj.price_usd);
+          } else if (obj.symbol == 'USDT') {
+            currCNY.set('CETUSDT', obj.price_usd);
           }
         }
         callback(null, currCNY);
