@@ -149,7 +149,7 @@ function chargeBalance(currCNY, callback) {
                 total: sum
               }
             }
-            if (sum < 500) {
+            if (parseFloat(sum) < 500) {
               needChange.set("CETBTC", 500 / currCNY.get(coin));
             }
           } else if (coin == 'BCH') {
@@ -160,7 +160,7 @@ function chargeBalance(currCNY, callback) {
                 total: sum
               }
             }
-            if (sum < 500) {
+            if (parseFloat(sum) < 500) {
               needChange.set("CETBCH", 500 / currCNY.get(coin));
             }
           } else if (coin == 'ETH') {
@@ -171,7 +171,7 @@ function chargeBalance(currCNY, callback) {
                 total: sum
               }
             }
-            if (sum < 500) {
+            if (parseFloat(sum) < 500) {
               needChange.set("CETETH", 500 / currCNY.get(coin));
             }
           } else if (coin == 'USDT') {
@@ -182,7 +182,7 @@ function chargeBalance(currCNY, callback) {
                 total: sum
               }
             }
-            if (sum < 500) {
+            if (parseFloat(sum) < 500) {
               needChange.set("CETUSDT", 500 / currCNY.get(coin));
             }
           }
