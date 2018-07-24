@@ -7,11 +7,19 @@ module.exports = {
   },
   log4js: {
     appenders: {
-      out: { type: 'stdout' },
-      app: { type: 'file', filename: 'application.log' }
+      out: {
+        type: 'stdout'
+      },
+      app: {
+        type: 'file',
+        filename: 'application.log'
+      }
     },
     categories: {
-      default: { appenders: [ 'out', 'app' ], level: 'info' }
+      default: {
+        appenders: ['out', 'app'],
+        level: 'info'
+      }
     }
   },
   zbg: {
