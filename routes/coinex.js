@@ -29,7 +29,7 @@ router.get('/account', function(req, res, next) {
         res.json(body);
       }
     })
-  } )
+  })
 });
 
 router.get('/market', function(req, res, next) {
