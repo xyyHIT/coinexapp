@@ -134,7 +134,8 @@ function chargeBalance(currCNY, callback) {
       if (err) {
 
       } else {
-        for (let [coin, balance] of body.data) {
+        for (let coin in body.data) {
+          var balance = body.data[coin];
           if (coin == 'BTC') {
             let sum = balance.available * currCNY.get(coin);
             if (sum > maxBalance) {
@@ -145,6 +146,39 @@ function chargeBalance(currCNY, callback) {
             }
             if (sum < 500) {
               needChange.set("CETBTC", 500 / currCNY.get(coin));
+            }
+          } else if (coin == 'BCH') {
+            let sum = balance.available * currCNY.get(coin);
+            if (sum > maxBalance) {
+              maxCoin = {
+                coin: 'CETBCH',
+                total: sum
+              }
+            }
+            if (sum < 500) {
+              needChange.set("CETBCH", 500 / currCNY.get(coin));
+            }
+          } else if (coin == 'ETH') {
+            let sum = balance.available * currCNY.get(coin);
+            if (sum > maxBalance) {
+              maxCoin = {
+                coin: 'CETETH',
+                total: sum
+              }
+            }
+            if (sum < 500) {
+              needChange.set("CETETH", 500 / currCNY.get(coin));
+            }
+          } else if (coin == 'USDT') {
+            let sum = balance.available * currCNY.get(coin);
+            if (sum > maxBalance) {
+              maxCoin = {
+                coin: 'CETUSDT',
+                total: sum
+              }
+            }
+            if (sum < 500) {
+              needChange.set("CETUSDT", 500 / currCNY.get(coin));
             }
           }
         }
@@ -199,9 +233,9 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
               var outUSD = currCNY.get(k);
               var inUSD = currCNY.get(key);
               var profit = myOutPrice * myOutCount * outUSD - myInPrice * myOutCount * inUSD;
-              var outTakes = myOutPrice * myOutCount * 0.0015 * outUSD;
-              var inTakes = myInPrice * myOutCount * 0.0015 * inUSD;
-              if (profit > (outTakes + inTakes)) {
+              var outTakes = myOutPrice * myOutCount * outUSD;
+              var inTakes = myInPrice * myOutCount * inUSD;
+              if (profit > (outTakes + inTakes) * 0.004) {
                 // 发现一组匹配
                 logger.info("myIn ===> " + myInPrice + " " + myOutCount + " " + inTakes);
                 logger.info("myOut ===> " + myOutPrice + " " + myOutCount + " " + outTakes);
