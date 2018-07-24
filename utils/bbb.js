@@ -39,38 +39,42 @@ function intervalFunc() {
      }
    })
  }, function(err) {
-   findOrder(lowSellPrice, highBuyerPrice, function(cb) {
-     logger.debug("findOrder ===>" + JSON.stringify(cb));
-     if (cb.length == 0) {
-       logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
-     } else {
-       var maxProfit = 0;
-       var maxProfitOrder = null;
-       for(let index in cb) {
-         var order = cb[index];
-         if (order.profit > maxProfit) {
-           maxProfitOrder = order;
-         }
-       }
-       logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
-       if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
-         async.series({
-           buy: function(callback) {
-             placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
-               callback(null, cb);
-             })
-           },
-           sell: function(callback) {
-             placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
-               callback(null, cb);
-             })
-           }
-         }, (err, results) => {
-           logger.info("订单已完成 ===>" + JSON.stringify(results));
-         })
-       }
-     }
-   })
+   if (err) {
+    logger.error(" err ===> " + JSON.stringify(err));
+   } else {
+    findOrder(lowSellPrice, highBuyerPrice, function(cb) {
+      logger.debug("findOrder ===>" + JSON.stringify(cb));
+      if (cb.length == 0) {
+        logger.info("-------------- 未找到合适订单，本次处理结束 --------------");
+      } else {
+        var maxProfit = 0;
+        var maxProfitOrder = null;
+        for(let index in cb) {
+          var order = cb[index];
+          if (order.profit > maxProfit) {
+            maxProfitOrder = order;
+          }
+        }
+        logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
+        if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
+          async.series({
+            buy: function(callback) {
+              placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
+                callback(null, cb);
+              })
+            },
+            sell: function(callback) {
+              placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
+                callback(null, cb);
+              })
+            }
+          }, (err, results) => {
+            logger.info("订单已完成 ===>" + JSON.stringify(results));
+          })
+        }
+      }
+    })
+   }
  })
 }
 
