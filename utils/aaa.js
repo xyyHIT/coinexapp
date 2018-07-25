@@ -143,11 +143,10 @@ function chargeBalance(currCNY, callback) {
         var maxBalance = 0;
         var needChangeCount = 0;
         var maxCoin = null;
-        var data = JSON.parse(body.data);
-        for (let coin in data) {
-          console.log(" let coin ===>" + coin);
-          var balance = data[coin];
-          console.log(" let balance ===>" + balance);
+        for (let coin in body.data) {
+          logger.info("let coin ===>" + coin);
+          var balance = body.data[coin];
+
           if (coin == 'BTC') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
