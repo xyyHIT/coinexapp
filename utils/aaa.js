@@ -145,10 +145,9 @@ function chargeBalance(currCNY, callback) {
         for (let coin in body.data) {
           var balance = body.data[coin];
           if (coin == 'BTC') {
-            logger.info("BTC ininini");
             let sum = parseFloat(balance.available * currCNY.get(coin));
-            logger.info("BTC ininini  sum===>" + sum);
             if (sum > maxBalance) {
+              maxBalance = sum;
               maxCoin = {
                 coin: 'CETBTC',
                 total: sum
@@ -160,6 +159,7 @@ function chargeBalance(currCNY, callback) {
           } else if (coin == 'BCH') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
+              maxBalance = sum;
               maxCoin = {
                 coin: 'CETBCH',
                 total: sum
@@ -171,6 +171,7 @@ function chargeBalance(currCNY, callback) {
           } else if (coin == 'ETH') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
+              maxBalance = sum;
               maxCoin = {
                 coin: 'CETETH',
                 total: sum
@@ -182,6 +183,7 @@ function chargeBalance(currCNY, callback) {
           } else if (coin == 'USDT') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
+              maxBalance = sum;
               maxCoin = {
                 coin: 'CETUSDT',
                 total: sum
