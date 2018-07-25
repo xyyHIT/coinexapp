@@ -146,7 +146,7 @@ function chargeBalance(currCNY, callback) {
           var balance = body.data[coin];
           if (coin == 'BTC') {
             logger.info("BTC ininini");
-            let sum = balance.available * currCNY.get(coin);
+            let sum = parseFloat(balance.available * currCNY.get(coin));
             logger.info("BTC ininini  sum===>" + sum);
             if (sum > maxBalance) {
               maxCoin = {
@@ -154,40 +154,40 @@ function chargeBalance(currCNY, callback) {
                 total: sum
               }
             }
-            if (parseFloat(sum) < 500) {
+            if (sum < 500) {
               needChangeCount += 500 / currCNY.get(coin);
             }
           } else if (coin == 'BCH') {
-            let sum = balance.available * currCNY.get(coin);
+            let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
               maxCoin = {
                 coin: 'CETBCH',
                 total: sum
               }
             }
-            if (parseFloat(sum) < 500) {
+            if (sum < 500) {
               needChangeCount += 500 / currCNY.get(coin);
             }
           } else if (coin == 'ETH') {
-            let sum = balance.available * currCNY.get(coin);
+            let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
               maxCoin = {
                 coin: 'CETETH',
                 total: sum
               }
             }
-            if (parseFloat(sum) < 500) {
+            if (sum < 500) {
               needChangeCount += 500 / currCNY.get(coin);
             }
           } else if (coin == 'USDT') {
-            let sum = balance.available * currCNY.get(coin);
+            let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
               maxCoin = {
                 coin: 'CETUSDT',
                 total: sum
               }
             }
-            if (parseFloat(sum) < 500) {
+            if (sum < 500) {
               needChangeCount += 500 / currCNY.get(coin);
             }
           }
