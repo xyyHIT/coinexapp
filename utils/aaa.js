@@ -139,6 +139,7 @@ function chargeBalance(currCNY, callback) {
       if (err) {
         logger.error(err);
       } else {
+        logger.info(" inininini ===>" + JSON.stringify(body));
         var maxBalance = 0;
         var needChangeCount = 0;
         var maxCoin = null;
