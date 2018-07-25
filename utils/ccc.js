@@ -120,7 +120,7 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
       var obj = v[index];
       var myOutPrice = parseFloat(obj[0]);
       var myOutCount = parseFloat(obj[1]);
-      if (myOutCount >= 100 && myOutCount <= 2000) {
+      if (myOutCount >= 10 && myOutCount <= 2000) {
         for (let [key, value] of lowSellPrice) {
           for (let i in value) {
             var in_obj = value[i];
@@ -132,8 +132,8 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
               var outUSD = currCNY.get(k);
               var inUSD = currCNY.get(key);
               var profit = myOutPrice * myOutCount * outUSD - myInPrice * myOutCount * inUSD;
-              var outTakes = myOutPrice * myOutCount * 0.0015 * outUSD;
-              var inTakes = myInPrice * myOutCount * 0.0015 * inUSD;
+              var outTakes = myOutPrice * myOutCount * 0.001 * outUSD;
+              var inTakes = myInPrice * myOutCount * 0.001 * inUSD;
               if (profit > (outTakes + inTakes)) {
                 // 发现一组匹配
                 logger.info("myIn ===> " + myInPrice + " " + myOutCount + " " + inTakes);
