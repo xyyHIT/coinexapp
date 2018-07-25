@@ -136,12 +136,12 @@ function chargeBalance(currCNY, callback) {
       json: true,
     }
     request.get(options, (err, response, body) => {
-      var maxBalance = 0;
-      var needChangeCount = 0;
-      var maxCoin = null;
       if (err) {
-
+        logger.error(err);
       } else {
+        var maxBalance = 0;
+        var needChangeCount = 0;
+        var maxCoin = null;
         for (let coin in body.data) {
           var balance = body.data[coin];
           if (coin == 'BTC') {
@@ -152,9 +152,10 @@ function chargeBalance(currCNY, callback) {
                 coin: 'CETBTC',
                 total: sum
               }
+              logger.info("max coin ===> " + maxCoin);
             }
             if (sum < 500) {
-              needChangeCount += 500 / currCNY.get(coin);
+              needChangeCount += parseFloat(500 / currCNY.get(coin));
             }
           } else if (coin == 'BCH') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
@@ -164,9 +165,10 @@ function chargeBalance(currCNY, callback) {
                 coin: 'CETBCH',
                 total: sum
               }
+              logger.info("max coin ===> " + maxCoin);
             }
             if (sum < 500) {
-              needChangeCount += 500 / currCNY.get(coin);
+              needChangeCount += parseFloat(500 / currCNY.get(coin));
             }
           } else if (coin == 'ETH') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
@@ -176,9 +178,10 @@ function chargeBalance(currCNY, callback) {
                 coin: 'CETETH',
                 total: sum
               }
+              logger.info("max coin ===> " + maxCoin);
             }
             if (sum < 500) {
-              needChangeCount += 500 / currCNY.get(coin);
+              needChangeCount += parseFloat(500 / currCNY.get(coin));
             }
           } else if (coin == 'USDT') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
@@ -188,9 +191,10 @@ function chargeBalance(currCNY, callback) {
                 coin: 'CETUSDT',
                 total: sum
               }
+              logger.info("max coin ===> " + maxCoin);
             }
             if (sum < 500) {
-              needChangeCount += 500 / currCNY.get(coin);
+              needChangeCount += parseFloat(500 / currCNY.get(coin));
             }
           }
         }
