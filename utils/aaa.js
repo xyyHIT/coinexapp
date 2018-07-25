@@ -195,6 +195,7 @@ function chargeBalance(currCNY, callback) {
           }
         }
         logger.info(" maxCoinBalance ===> " + maxCoin);
+        logger.info(" maxBalance ===> " + maxBalance);
         let sell_obj = {
           amount: String(needChangeCount),
           market: maxCoin.coin
