@@ -21,7 +21,6 @@ function chargeBalance(currCNY, callback) {
   currCNY.set("ETH", "473.874");
   currCNY.set("BCH", "863.257");
   currCNY.set("USDT", "0.996413");
-  logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
   //1. 查询当前余额
   let currTime = Date.now();
   var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
