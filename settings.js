@@ -35,7 +35,17 @@ module.exports = {
     api_key: 'rMtcoeKQ4pt4dYySkqyPQzBVfHEEh93B',
     secret_key: 'F7L63G3HFizw466RIIhNguWbtFSfJjTS',
     public_key: '-----BEGIN PUBLIC KEY-----\n' +
-      'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZHUUywjBVqLzYrg8blvBJXTGF2SpM+MGKfMceEvDWErOv4b7DKFnINmTEniLW7465yZpAi0t3IqS7j3f0hFLYdX1yPZizrsHiN6qiepU0j2mJaRYS1e0A4L6jteTDsoZmGyYNd0GVGfVnW4GEEAU7sqGGrZ5/ZYIowWnTJGWqCQIDAQAB\n' +
+      'MIGfMA0GCSqGSIb3DQEB\n' +
+      'AQUAA4GNADCBiQKBgQC\n' +
+      'ZHUUywjBVqLzYrg8blvBJX\n' +
+      'TGF2SpM+MGKfMceEvDW\n' +
+      'ErOv4b7DKFnINmTEniLW7\n' +
+      '465yZpAi0t3IqS7j3f0hFLYdX\n' +
+      '1yPZizrsHiN6qiepU0j2mJaR\n' +
+      'YS1e0A4L6jteTDsoZmGyY\n' +
+      'Nd0GVGfVnW4GEEAU7sq\n' +
+      'GGrZ5/ZYIowWnTJGWqCQI\n' +
+      'DAQAB\n' +
       '-----END PUBLIC KEY-----'
   }
 }

@@ -1,5 +1,6 @@
 var md5 = require('md5');
 var NodeRSA = require('node-rsa');
+var crypto = require('crypto');
 var settings = require('../settings');
 
 let signature = function (params, isJSON, cb) {
@@ -35,13 +36,28 @@ let zbg = function (currTime, params, isJSON, cb) {
 }
 
 let asiaex = function (param, cb) {
-  //param = '{"secretKey":"5DpP1Vgq5tUXwngHcJAYR1EnRamVuBBt","type":"1","pairname":"BCHCNY","price":"500","count":"1"}';
-  let key = new NodeRSA(settings.asiaex.public_key);
-  let encrypted = key.encrypt(param, 'base64');
+  console.log(JSON.stringify(param));
+  //param = '{"secretKey":"F7L63G3HFizw466RIIhNguWbtFSfJjTS","type":"0","pairname":"BACETH","price":"0.0000851","count":"500"}';
+  // let key = new NodeRSA(settings.asiaex.public_key, {
+  //   encryptionScheme: 'pkcs1'
+  // });
+  // let encrypted = key.encrypt(param, 'base64');
+  // var key = {
+  //   key: settings.asiaex.public_key,
+  //   padding: crypto.constants.RSA_PKCS1_PSS_PADDING
+  // }
+  let key = {
+    key: settings.asiaex.public_key,
+    padding: crypto.constants.RSA_PKCS1_PADDING
+  }
+  let encrypted = crypto.publicEncrypt(key, Buffer.from(JSON.stringify(param)));
+  console.log("encrypted ===> " + encrypted.toString('base64'));
   cb({
     signature: encrypted
   });
 }
+
+
 module.exports = {
   signature,
   zbg,
