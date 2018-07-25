@@ -157,7 +157,7 @@ function chargeBalance(currCNY, callback) {
         var balance = myBalances[coin];
         logger.info("let balance ===>" + balance);
         if (coin == 'BTC') {
-          let sum = parseFloat(balance.available * currCNY.get(coin));
+          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
@@ -168,10 +168,10 @@ function chargeBalance(currCNY, callback) {
             logger.info("max coin ===> " + maxCoin);
           }
           if (sum < 500) {
-            needChangeCount += parseFloat(500 / currCNY.get(coin));
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'BCH') {
-          let sum = parseFloat(balance.available * currCNY.get(coin));
+          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
@@ -182,10 +182,10 @@ function chargeBalance(currCNY, callback) {
             logger.info("max coin ===> " + maxCoin);
           }
           if (sum < 500) {
-            needChangeCount += parseFloat(500 / currCNY.get(coin));
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'ETH') {
-          let sum = parseFloat(balance.available * currCNY.get(coin));
+          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
@@ -196,10 +196,10 @@ function chargeBalance(currCNY, callback) {
             logger.info("max coin ===> " + maxCoin);
           }
           if (sum < 500) {
-            needChangeCount += parseFloat(500 / currCNY.get(coin));
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'USDT') {
-          let sum = parseFloat(balance.available * currCNY.get(coin));
+          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
@@ -210,7 +210,7 @@ function chargeBalance(currCNY, callback) {
             logger.info("max coin ===> " + maxCoin);
           }
           if (sum < 500) {
-            needChangeCount += parseFloat(500 / currCNY.get(coin));
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         }
       }
