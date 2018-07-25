@@ -120,100 +120,105 @@ function intervalFunc() {
 
 function chargeBalance(currCNY, callback) {
   logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  //1. 查询当前余额
-  let currTime = Date.now();
-  var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
-  signature.signature(str, false, function (cb) {
-    let options = {
-      url: 'https://api.coinex.com/v1/balance/info',
-      headers: {
-        authorization: cb.signature
-      },
-      qs: {
-        access_id: settings.coinex.access_id,
-        tonce: currTime
-      },
-      json: true,
-    }
-    request.get(options, (err, response, body) => {
-      if (err) {
-        logger.error(err);
-      } else {
-        logger.info(" inininini ===>" + JSON.stringify(body));
-        var maxBalance = 0;
-        var needChangeCount = 0;
-        var maxCoin = null;
-        for (let coin in body.data) {
-          logger.info("let coin ===>" + coin);
-          var balance = body.data[coin];
-          if (coin == 'BTC') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETBTC',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'BCH') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETBCH',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'ETH') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETETH',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'USDT') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETUSDT',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          }
-        }
-        if (maxCoin && needChangeCount > 0) {
-          logger.info(" maxCoinBalance ===> " + maxCoin);
-          logger.info(" needChangeCount ===> " + needChangeCount);
-          let sell_obj = {
-            amount: String(needChangeCount),
-            market: maxCoin.coin
-          }
-          placeMarketOrder(sell_obj, 'sell', function (chargeCallback) {
-            logger.info("chargeCallback ===>" + chargeCallback);
-          })
-        }
-
+  async.waterfall([
+    function (callback) {
+      let currTime = Date.now();
+      var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
+      signature.signature(str, false, function (cb) {
+        callback(null, currTime, cb);
+      })
+    },
+    function (currTime, signatureStr, callback) {
+      let options = {
+        url: 'https://api.coinex.com/v1/balance/info',
+        headers: {
+          authorization: signatureStr.signature
+        },
+        qs: {
+          access_id: settings.coinex.access_id,
+          tonce: currTime
+        },
+        json: true,
       }
-    })
+      request.get(options, (err, response, body) => {
+        if (err) {
+
+        } else {
+          callback(null, body.data);
+        }
+      })
+    },
+    function (myBalances, callback) {
+      var maxBalance = -1;
+      var needChangeCount = 0;
+      var maxCoin = null;
+      for (let coin in myBalances) {
+        logger.info("let coin ===>" + coin);
+        var balance = myBalances[coin];
+        if (coin == 'BTC') {
+          let sum = parseFloat(balance.available * currCNY.get(coin));
+          if (sum > maxBalance) {
+            maxBalance = sum;
+            maxCoin = {
+              coin: 'CETBTC',
+              total: sum
+            }
+            logger.info("max coin ===> " + maxCoin);
+          }
+          if (sum < 500) {
+            needChangeCount += parseFloat(500 / currCNY.get(coin));
+          }
+        } else if (coin == 'BCH') {
+          let sum = parseFloat(balance.available * currCNY.get(coin));
+          if (sum > maxBalance) {
+            maxBalance = sum;
+            maxCoin = {
+              coin: 'CETBCH',
+              total: sum
+            }
+            logger.info("max coin ===> " + maxCoin);
+          }
+          if (sum < 500) {
+            needChangeCount += parseFloat(500 / currCNY.get(coin));
+          }
+        } else if (coin == 'ETH') {
+          let sum = parseFloat(balance.available * currCNY.get(coin));
+          if (sum > maxBalance) {
+            maxBalance = sum;
+            maxCoin = {
+              coin: 'CETETH',
+              total: sum
+            }
+            logger.info("max coin ===> " + maxCoin);
+          }
+          if (sum < 500) {
+            needChangeCount += parseFloat(500 / currCNY.get(coin));
+          }
+        } else if (coin == 'USDT') {
+          let sum = parseFloat(balance.available * currCNY.get(coin));
+          if (sum > maxBalance) {
+            maxBalance = sum;
+            maxCoin = {
+              coin: 'CETUSDT',
+              total: sum
+            }
+            logger.info("max coin ===> " + maxCoin);
+          }
+          if (sum < 500) {
+            needChangeCount += parseFloat(500 / currCNY.get(coin));
+          }
+        }
+      }
+      logger.info(" maxCoinBalance ===> " + JSON.stringify(maxCoin));
+      logger.info(" maxBalance ===> " + JSON.stringify(maxBalance));
+      let sell_obj = {
+        amount: String(needChangeCount),
+        market: maxCoin.coin
+      }
+      callback(null, sell_obj);
+    }
+  ], function (err, result) {
+    chargeCallback(result);
   })
 }
 
