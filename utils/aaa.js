@@ -146,7 +146,6 @@ function chargeBalance(currCNY, callback) {
         for (let coin in body.data) {
           logger.info("let coin ===>" + coin);
           var balance = body.data[coin];
-
           if (coin == 'BTC') {
             let sum = parseFloat(balance.available * currCNY.get(coin));
             if (sum > maxBalance) {
@@ -201,15 +200,18 @@ function chargeBalance(currCNY, callback) {
             }
           }
         }
-        logger.info(" maxCoinBalance ===> " + maxCoin);
-        logger.info(" maxBalance ===> " + maxBalance);
-        let sell_obj = {
-          amount: String(needChangeCount),
-          market: maxCoin.coin
+        if (maxCoin && needChangeCount > 0) {
+          logger.info(" maxCoinBalance ===> " + maxCoin);
+          logger.info(" needChangeCount ===> " + needChangeCount);
+          let sell_obj = {
+            amount: String(needChangeCount),
+            market: maxCoin.coin
+          }
+          placeMarketOrder(sell_obj, 'sell', function (chargeCallback) {
+            logger.info("chargeCallback ===>" + chargeCallback);
+          })
         }
-        placeMarketOrder(sell_obj, 'sell', function (chargeCallback) {
-          logger.info("chargeCallback ===>" + chargeCallback);
-        })
+
       }
     })
   })
