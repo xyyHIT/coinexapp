@@ -53,7 +53,7 @@ let asiaex = function (param, cb) {
   let encrypted = crypto.publicEncrypt(key, Buffer.from(JSON.stringify(param)));
   console.log("encrypted ===> " + encrypted.toString('base64'));
   cb({
-    signature: encrypted
+    signature: encrypted.toString('base64')
   });
 }
 
