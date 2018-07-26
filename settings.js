@@ -27,15 +27,15 @@ module.exports = {
     secret_key: '77bcd0aa61128921d732342574cc0f0f',
   },
   asiaex: {
-    // api_key: 'qONAkTJAkKoz6kHM6rWrvySSX0mNx61r',
-    // secret_key: '0eP2nZtOHRuouqmc7Y8l5vFW2CYlIduK',
+    // api_key: 'sdXaK9bYdsFFIIK9cLx2injCRqYmuzDz',
+    // secret_key: 'KRORxdQwd8mBqJHPvjR6arTO4EeQEHrN',
     // public_key: '-----BEGIN PUBLIC KEY-----\n' +
-    //   'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCg2avSF1Fwx4o14m3pNXlBR5Cow9bWd+FOdNfL6kquPJSavzxo9kOnhbsY4L51Nc5GybGfYekTZbzk49yHJd99oKRMBv4BecHzJfG9PUFklZh/mDWZzipAwMpVoMSyKZywD2HrXvF4dfPg8l1Yfb9VYx0u9ygRv2wsYiMzUsm9AwIDAQAB\n' +
+    //   'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCyN77S2w3XOO6P8Du90xkf05QRgsFydhuKovuwG7TxBncf3DYsSSN54xuJZgrTq7xtXhw4LK7SeLilQkBwYdrKwZgM7963b/T4IyN0oQGW5ZsqvcFyTQCmktDoZhC55zminbudQZPZ4gjWz+vpUIG1xj2i4j0+BZlSd8qkUANh7wIDAQAB\n' +
     //   '-----END PUBLIC KEY-----'
-    api_key: 'rMtcoeKQ4pt4dYySkqyPQzBVfHEEh93B',
-    secret_key: 'F7L63G3HFizw466RIIhNguWbtFSfJjTS',
+    api_key: 'Vnzb9PG32VaxkLEAE0VeP8UmlCcJDQYF',
+    secret_key: 'EUfoYbhJ8dVq0ka6P8oL4WioudQ7LiNQ',
     public_key: '-----BEGIN PUBLIC KEY-----\n' +
-      'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZHUUywjBVqLzYrg8blvBJXTGF2SpM+MGKfMceEvDWErOv4b7DKFnINmTEniLW7465yZpAi0t3IqS7j3f0hFLYdX1yPZizrsHiN6qiepU0j2mJaRYS1e0A4L6jteTDsoZmGyYNd0GVGfVnW4GEEAU7sqGGrZ5/ZYIowWnTJGWqCQIDAQAB\n' +
+      'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCUrMtWdtspm6BRwpGnAmzNIY6BxjuQ+AwKpRt8nD2K6U7E024hdhRru3A9aW4CXvZcer4t/59e68OlmSLDq74hjT1yF3efI5IgU6bqqNy7xaTTHDvkRWbhlKm8ZF67E2DIarEvXdKajtR7ABcmJktgsXlxClGV62DxURRsZfjtWwIDAQAB\n' +
       '-----END PUBLIC KEY-----'
   }
 }
