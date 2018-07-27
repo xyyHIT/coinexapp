@@ -313,7 +313,7 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
                     },
                     myOut: {
                       market: k,
-                      amount: myInCount * myOutPrice,
+                      amount: myInCount,
                       price: myOutPrice,
                       usd: outUSD
                     }
