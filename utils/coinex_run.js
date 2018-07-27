@@ -163,7 +163,7 @@ function checkBalance(currCNY, order, chargeCallback) {
     },
     function (myBalances, callback) {
       var maxBalance = -1;
-      var needChangeCount = buy_order.amount;
+      var needChangeCount = 0;
       var maxCoin = null;
       var needCharge = true;
       for (let coin in myBalances) {
@@ -178,6 +178,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               total: sum
             }
           }
+          if (sum < 500) {
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+          }
         } else if (coin == 'BCH') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
@@ -188,6 +191,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               total: sum
             }
           }
+          if (sum < 500) {
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+          }
         } else if (coin == 'ETH') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
@@ -197,6 +203,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
+          }
+          if (sum < 500) {
+            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'USDT') {
           coin = 'CET' + coin;
@@ -219,7 +228,7 @@ function checkBalance(currCNY, order, chargeCallback) {
         }
       }
       let charge_obj = {
-        amount: String(needChangeCount),
+        amount: String(needChangeCount.toFixed(8)),
         market: maxCoin.coin,
         needCharge: needCharge
       }
