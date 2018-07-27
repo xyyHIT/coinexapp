@@ -84,20 +84,20 @@ function intervalFunc() {
                   logger.info(" 开始订单 ... ...");
                   async.series({
                     buy: function (back) {
-                      placeLimitOrder(maxProfitOrder.myOut, 'buy', (sell_cb) => {
-                        if (sell_cb.code == 107) {
-                          back(107, sell_cb);
-                        } else {
-                          back(null, sell_cb);
-                        }
-                      })
-                    },
-                    sell: function (back) {
-                      placeLimitOrder(maxProfitOrder.myIn, 'sell', (buy_cb) => {
+                      placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
                         if (buy_cb.code == 107) {
                           back(107, buy_cb);
                         } else {
                           back(null, buy_cb);
+                        }
+                      })
+                    },
+                    sell: function (back) {
+                      placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
+                        if (sell_cb.code == 107) {
+                          back(107, sell_cb);
+                        } else {
+                          back(null, sell_cb);
                         }
                       })
                     }
