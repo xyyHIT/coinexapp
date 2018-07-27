@@ -225,7 +225,7 @@ function checkBalance(currCNY, order, chargeCallback) {
         }
       }
       if (needCharge) {
-        needChangeCount = buy_order.amount * buy_order.price * parseFloat(currCNY.get(buy_order.market)) / parseFloat(currCNY.get(maxCoin.coin));
+        needChangeCount = buy_order.amount;
         logger.info("needChangeCount ===>" + needChangeCount);
       }
       let charge_obj = {
