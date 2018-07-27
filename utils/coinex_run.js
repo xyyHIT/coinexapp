@@ -155,14 +155,15 @@ function chargeBalance(currCNY, chargeCallback) {
       for (let coin in myBalances) {
         logger.info("let coin ===>" + coin);
         var balance = myBalances[coin];
-        logger.info("let balance ===>" + balance);
+        logger.info("let balance ===>" + JSON.stringify(balance));
         if (coin == 'BTC') {
+          coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
-              coin: 'CETBTC',
+              coin: coin,
               total: sum
             }
             logger.info("max coin ===> " + maxCoin);
@@ -171,12 +172,13 @@ function chargeBalance(currCNY, chargeCallback) {
             needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'BCH') {
+          coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
-              coin: 'CETBCH',
+              coin: coin,
               total: sum
             }
             logger.info("max coin ===> " + maxCoin);
@@ -185,12 +187,13 @@ function chargeBalance(currCNY, chargeCallback) {
             needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'ETH') {
+          coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
-              coin: 'CETETH',
+              coin: coin,
               total: sum
             }
             logger.info("max coin ===> " + maxCoin);
@@ -199,12 +202,13 @@ function chargeBalance(currCNY, chargeCallback) {
             needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'USDT') {
+          coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
           logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
-              coin: 'CETUSDT',
+              coin: coin,
               total: sum
             }
             logger.info("max coin ===> " + maxCoin);
