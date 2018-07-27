@@ -82,21 +82,21 @@ function intervalFunc() {
                 logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
                 if (charge_cb.finish) {
                   async.series({
-                    sell: function (back) {
-                      placeLimitOrder(maxProfitOrder.myIn, 'sell', (sell_cb) => {
-                        if (sell_cb.code == 107) {
-                          back(107, sell_cb);
-                        } else {
-                          back(null, sell_cb);
-                        }
-                      })
-                    },
                     buy: function (back) {
                       placeLimitOrder(maxProfitOrder.myOut, 'buy', (buy_cb) => {
                         if (buy_cb.code == 107) {
                           back(107, buy_cb);
                         } else {
                           back(null, buy_cb);
+                        }
+                      })
+                    },
+                    sell: function (back) {
+                      placeLimitOrder(maxProfitOrder.myIn, 'sell', (sell_cb) => {
+                        if (sell_cb.code == 107) {
+                          back(107, sell_cb);
+                        } else {
+                          back(null, sell_cb);
                         }
                       })
                     }
