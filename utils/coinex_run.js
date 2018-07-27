@@ -271,8 +271,8 @@ function strMapToObj(strMap) {
 
 function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
   logger.debug("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  logger.debug(JSON.stringify(strMapToObj(lowSellPrice)));
-  logger.debug(JSON.stringify(strMapToObj(highBuyerPrice)));
+  logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
+  logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   var orders = [];
   for (let [k, v] of highBuyerPrice) {
@@ -280,40 +280,42 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
       var obj = v[index];
       var myOutPrice = parseFloat(obj[0]);
       var myOutCount = parseFloat(obj[1]);
-      if (myOutCount >= 100 && myOutCount <= 2000) {
+      if (myOutCount >= 100 && myOutCount <= 20000) {
         for (let [key, value] of lowSellPrice) {
-          for (let i in value) {
-            var in_obj = value[i];
-            var myInPrice = parseFloat(in_obj[0]);
-            var myInCount = parseFloat(in_obj[1]);
-            // 如果卖出的价格高于我买入的价格 并且 卖出的总数能够大于
-            if (myOutCount >= myInCount) {
-              // 发现一组匹配, 判断手续费是否足够
-              var outUSD = currCNY.get(k);
-              var inUSD = currCNY.get(key);
-              var outOrder = myOutPrice * myOutCount * outUSD;
-              var inOrder = myInPrice * myOutCount * inUSD;
-              var profit = outOrder - inOrder;
-              if (profit > (outOrder + inOrder) * 0.002) {
-                // 发现一组匹配
-                // logger.info("myIn ===> " + myInPrice + " " + myOutCount);
-                // logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
-                // logger.info("my profit ===> " + profit);
-                orders.push({
-                  profit: profit,
-                  myIn: {
-                    market: key,
-                    amount: myOutCount,
-                    price: myInPrice,
-                    usd: inUSD
-                  },
-                  myOut: {
-                    market: k,
-                    amount: myOutCount,
-                    price: myOutPrice,
-                    usd: outUSD
-                  }
-                })
+          if (k != key) {
+            for (let i in value) {
+              var in_obj = value[i];
+              var myInPrice = parseFloat(in_obj[0]);
+              var myInCount = parseFloat(in_obj[1]);
+              // 如果卖出的价格高于我买入的价格 并且 卖出的总数能够大于
+              if (myOutCount >= myInCount) {
+                // 发现一组匹配, 判断手续费是否足够
+                var outUSD = currCNY.get(k);
+                var inUSD = currCNY.get(key);
+                var outOrder = myOutPrice * myInCount * outUSD;
+                var inOrder = myInPrice * myInCount * inUSD;
+                var profit = outOrder - inOrder;
+                if (profit > (outOrder + inOrder) * 0.002) {
+                  // 发现一组匹配
+                  // logger.info("myIn ===> " + myInPrice + " " + myOutCount);
+                  // logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
+                  // logger.info("my profit ===> " + profit);
+                  orders.push({
+                    profit: profit,
+                    myIn: {
+                      market: key,
+                      amount: myInCount,
+                      price: myInPrice,
+                      usd: inUSD
+                    },
+                    myOut: {
+                      market: k,
+                      amount: myInCount,
+                      price: myOutPrice,
+                      usd: outUSD
+                    }
+                  })
+                }
               }
             }
           }
