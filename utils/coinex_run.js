@@ -163,6 +163,7 @@ function checkBalance(currCNY, order, chargeCallback) {
     },
     function (myBalances, callback) {
       var maxBalance = -1.0;
+      var needChangeCount = 0;
       var maxCoin = null;
       var needCharge = true;
       for (let coin in myBalances) {
@@ -217,8 +218,11 @@ function checkBalance(currCNY, order, chargeCallback) {
           }
         }
       }
+      if (needCharge) {
+        needChangeCount = 500 / parseFloat(currCNY.get(maxCoin.coin));
+      }
       let charge_obj = {
-        amount: String(buy_order.amount.toFixed(8)),
+        amount: String(needChangeCount.toFixed(8)),
         market: maxCoin.coin,
         needCharge: needCharge
       }
