@@ -78,7 +78,7 @@ function intervalFunc() {
             logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
             if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
               // 判断是否有足够
-              checkBalance(currCNY, maxProfitOrder, (charg_cb) => {
+              checkBalance(currCNY, (charg_cb) => {
                 if (charg_cb.finish) {
                   async.series({
                     buy: function (back) {
@@ -152,9 +152,8 @@ function getMyBalances(balance_callback) {
   })
 }
 // 判断是否完成订单的余额足够。如果余额不够充值
-function checkBalance(currCNY, order, chargeCallback) {
+function checkBalance(currCNY, chargeCallback) {
   logger.info("chargeBalance currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  var buy_order = order.myIn;
   async.waterfall([
     function (callback) {
       getMyBalances((balance_cb) => {
