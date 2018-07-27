@@ -78,28 +78,28 @@ function intervalFunc() {
             logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
             if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
               async.series({
-                buy: function (callback) {
-                  placeLimitOrder(maxProfitOrder.myIn, 'buy', (cb) => {
-                    if (cb.code == 107) {
-                      callback(107, cb);
+                buy: function (back) {
+                  placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
+                    if (buy_cb.code == 107) {
+                      back(107, buy_cb);
                     } else {
-                      callback(null, cb);
+                      back(null, buy_cb);
                     }
                   })
                 },
-                sell: function (callback) {
-                  placeLimitOrder(maxProfitOrder.myOut, 'sell', (cb) => {
-                    if (cb.code == 107) {
-                      callback(107, cb);
+                sell: function (back) {
+                  placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
+                    if (sell_cb.code == 107) {
+                      back(107, sell_cb);
                     } else {
-                      callback(null, cb);
+                      back(null, sell_cb);
                     }
                   })
                 }
               }, (err, results) => {
                 if (err) {
                   logger.info("errr ===> " + JSON.stringify(err));
-                  if (err == '107') {
+                  if (err == 107) {
                     chargeBalance(currCNY, function (chargeCallback) {
                       logger.info("充值完成 ===>" + JSON.stringify(chargeCallback));
                     })
@@ -118,7 +118,7 @@ function intervalFunc() {
 
 
 
-function chargeBalance(currCNY, callback) {
+function chargeBalance(currCNY, chargeCallback) {
   logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
   async.waterfall([
     function (callback) {
@@ -270,13 +270,13 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
               // 发现一组匹配, 判断手续费是否足够
               var outUSD = currCNY.get(k);
               var inUSD = currCNY.get(key);
-              var profit = myOutPrice * myOutCount * outUSD - myInPrice * myOutCount * inUSD;
-              var outTakes = myOutPrice * myOutCount * outUSD;
-              var inTakes = myInPrice * myOutCount * inUSD;
-              if (profit > (outTakes + inTakes) * 0.003) {
+              var outOrder = myOutPrice * myOutCount * outUSD;
+              var inOrder = myInPrice * myOutCount * inUSD;
+              var profit = outOrder - inOrder;
+              if (profit > (outOrder + inOrder) * 0.002) {
                 // 发现一组匹配
-                logger.info("myIn ===> " + myInPrice + " " + myOutCount + " " + inTakes);
-                logger.info("myOut ===> " + myOutPrice + " " + myOutCount + " " + outTakes);
+                logger.info("myIn ===> " + myInPrice + " " + myOutCount);
+                logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
                 logger.info("my profit ===> " + profit);
                 orders.push({
                   profit: profit,

@@ -34,9 +34,9 @@ let zbg = function (currTime, params, isJSON, cb) {
   });
 }
 
-let asiaex = function (param, cb) {
+let asiaex = function (param, public_key, cb) {
   let key = {
-    key: settings.asiaex.public_key,
+    key: public_key,
     padding: crypto.constants.RSA_PKCS1_PADDING
   }
   let encrypted = crypto.publicEncrypt(key, Buffer.from(JSON.stringify(param)));
