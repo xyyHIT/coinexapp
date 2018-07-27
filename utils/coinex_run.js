@@ -78,7 +78,7 @@ function intervalFunc() {
             logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
             if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
               // 判断是否有足够
-              checkBalance(currCNY, (charg_cb) => {
+              checkBalance(currCNY, maxProfitOrder, (charg_cb) => {
                 if (charg_cb.finish) {
                   async.series({
                     buy: function (back) {
@@ -152,8 +152,9 @@ function getMyBalances(balance_callback) {
   })
 }
 // 判断是否完成订单的余额足够。如果余额不够充值
-function checkBalance(currCNY, chargeCallback) {
+function checkBalance(currCNY, order, chargeCallback) {
   logger.info("chargeBalance currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
+  var buy_order = order.myIn;
   async.waterfall([
     function (callback) {
       getMyBalances((balance_cb) => {
@@ -164,6 +165,7 @@ function checkBalance(currCNY, chargeCallback) {
       var maxBalance = -1;
       var needChangeCount = 0;
       var maxCoin = null;
+      var needCharge = true;
       for (let coin in myBalances) {
         var balance = myBalances[coin];
         if (coin == 'BTC') {
@@ -215,23 +217,37 @@ function checkBalance(currCNY, chargeCallback) {
               total: sum
             }
           }
+        } else if (coin == 'CET') {
+          if (balance.available > buy_order.amount) {
+            // 余额足够，不需要充值
+            needCharge = false;
+            break;
+          } else {
+            needCharge = true;
+          }
         }
       }
       let charge_obj = {
         amount: String(needChangeCount.toFixed(8)),
-        market: maxCoin.coin
+        market: maxCoin.coin,
+        needCharge: needCharge
       }
       callback(null, charge_obj);
     },
     function (charge, callback) {
       logger.info("charge ===> " + JSON.stringify(charge));
-      placeMarketOrder(charge, 'sell', (order_cb) => {
-        logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
+      if (charge.needCharge) {
+        placeMarketOrder(charge, 'sell', (order_cb) => {
+          logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
+          callback(null, {
+            finish: true
+          })
+        })
+      } else {
         callback(null, {
           finish: true
-        })
-      })
-
+        });
+      }
     }
   ], function (err, result) {
     chargeCallback(result);
