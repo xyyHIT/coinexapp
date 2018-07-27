@@ -77,35 +77,37 @@ function intervalFunc() {
             }
             logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
             if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
-              async.series({
-                buy: function (back) {
-                  placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
-                    if (buy_cb.code == 107) {
-                      back(107, buy_cb);
+              // 判断是否有足够
+              checkBalance(currCNY, maxProfitOrder, (charg_cb) => {
+                if (charg_cb.finish) {
+                  async.series({
+                    buy: function (back) {
+                      placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
+                        if (buy_cb.code == 107) {
+                          back(107, buy_cb);
+                        } else {
+                          back(null, buy_cb);
+                        }
+                      })
+                    },
+                    sell: function (back) {
+                      placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
+                        if (sell_cb.code == 107) {
+                          back(107, sell_cb);
+                        } else {
+                          back(null, sell_cb);
+                        }
+                      })
+                    }
+                  }, (err, results) => {
+                    if (err) {
+                      logger.info("订单失败 ===>" + JSON.stringify(err));
                     } else {
-                      back(null, buy_cb);
+                      logger.info("订单完成 ===>" + JSON.stringify(results));
                     }
                   })
-                },
-                sell: function (back) {
-                  placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
-                    if (sell_cb.code == 107) {
-                      back(107, sell_cb);
-                    } else {
-                      back(null, sell_cb);
-                    }
-                  })
-                }
-              }, (err, results) => {
-                if (err) {
-                  logger.info("errr ===> " + JSON.stringify(err));
-                  if (err == 107) {
-                    chargeBalance(currCNY, function (chargeCallback) {
-                      logger.info("充值完成 ===>" + JSON.stringify(chargeCallback));
-                    })
-                  }
                 } else {
-                  logger.info("订单已完成 ===>" + JSON.stringify(results));
+                  logger.info("订单完成 ===>" + JSON.stringify(results));
                 }
               })
             }
@@ -116,10 +118,7 @@ function intervalFunc() {
   })
 }
 
-
-
-function chargeBalance(currCNY, chargeCallback) {
-  logger.info("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
+function getMyBalances(balance_callback) {
   async.waterfall([
     function (callback) {
       let currTime = Date.now();
@@ -147,84 +146,98 @@ function chargeBalance(currCNY, chargeCallback) {
           callback(null, body.data);
         }
       })
+    }
+  ], function (err, result) {
+    balance_callback(result);
+  })
+}
+// 判断是否完成订单的余额足够。如果余额不够充值
+function checkBalance(currCNY, order, chargeCallback) {
+  logger.info("chargeBalance currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
+  var buy_order = order.myIn;
+  async.waterfall([
+    function (callback) {
+      getMyBalances((balance_cb) => {
+        callback(null, balance_cb);
+      })
     },
     function (myBalances, callback) {
       var maxBalance = -1;
-      var needChangeCount = 0;
+      var needChangeCount = buy_order.amount;
       var maxCoin = null;
+      var needCharge = true;
       for (let coin in myBalances) {
-        logger.info("let coin ===>" + coin);
         var balance = myBalances[coin];
-        logger.info("let balance ===>" + JSON.stringify(balance));
         if (coin == 'BTC') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
               coin: coin,
               total: sum
             }
-            logger.info("max coin ===> " + maxCoin);
-          }
-          if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'BCH') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
               coin: coin,
               total: sum
             }
-            logger.info("max coin ===> " + maxCoin);
-          }
-          if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'ETH') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
               coin: coin,
               total: sum
             }
-            logger.info("max coin ===> " + maxCoin);
-          }
-          if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'USDT') {
           coin = 'CET' + coin;
           let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          logger.info("sum ===>" + sum);
           if (sum > maxBalance) {
             maxBalance = sum;
             maxCoin = {
               coin: coin,
               total: sum
             }
-            logger.info("max coin ===> " + maxCoin);
           }
-          if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+        } else if (coin == 'CET') {
+          if (balance.available > needChangeCount) {
+            // 余额足够，不需要充值
+            needCharge = false;
+            break;
+          } else {
+            needCharge = true;
           }
         }
       }
-      logger.info(" maxCoinBalance ===> " + JSON.stringify(maxCoin));
-      logger.info(" maxBalance ===> " + JSON.stringify(maxBalance));
       let sell_obj = {
         amount: String(needChangeCount),
-        market: maxCoin.coin
+        market: maxCoin.coin,
+        needCharge: needCharge
       }
       callback(null, sell_obj);
+    },
+    function (charge, callback) {
+      if (charge.needCharge) {
+        placeMarketOrder(charge, 'buy', (order_cb) => {
+          logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
+          callback(null, {
+            finish: true
+          })
+        })
+      } else {
+        callback(null, {
+          finish: true
+        });
+      }
     }
   ], function (err, result) {
     chargeCallback(result);
@@ -279,9 +292,9 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
               var profit = outOrder - inOrder;
               if (profit > (outOrder + inOrder) * 0.002) {
                 // 发现一组匹配
-                logger.info("myIn ===> " + myInPrice + " " + myOutCount);
-                logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
-                logger.info("my profit ===> " + profit);
+                // logger.info("myIn ===> " + myInPrice + " " + myOutCount);
+                // logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
+                // logger.info("my profit ===> " + profit);
                 orders.push({
                   profit: profit,
                   myIn: {
