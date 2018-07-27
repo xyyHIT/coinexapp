@@ -177,11 +177,6 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-            if (sum < 500) {
-              needChangeCount = 500 / parseFloat(currCNY.get(coin));
-            }
-            logger.info(coin + " ===> maxBalance " + maxBalance);
-            logger.info(coin + " ===> needChangeCount " + needChangeCount);
           }
         } else if (coin == 'BCH') {
           coin = 'CET' + coin;
@@ -192,11 +187,6 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-            if (sum < 500) {
-              needChangeCount = 500 / parseFloat(currCNY.get(coin));
-            }
-            logger.info(coin + " ===> maxBalance " + maxBalance);
-            logger.info(coin + " ===> needChangeCount " + needChangeCount);
           }
         } else if (coin == 'ETH') {
           coin = 'CET' + coin;
@@ -207,11 +197,6 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-            if (sum < 500) {
-              needChangeCount = 500 / parseFloat(currCNY.get(coin));
-            }
-            logger.info(coin + " ===> maxBalance " + maxBalance);
-            logger.info(coin + " ===> needChangeCount " + needChangeCount);
           }
         } else if (coin == 'USDT') {
           coin = 'CET' + coin;
@@ -222,11 +207,6 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-            if (sum < 500) {
-              needChangeCount = 500 / parseFloat(currCNY.get(coin));
-            }
-            logger.info(coin + " ===> maxBalance " + maxBalance);
-            logger.info(coin + " ===> needChangeCount " + needChangeCount);
           }
         } else if (coin == 'CET') {
           if (balance.available > buy_order.amount) {
@@ -237,6 +217,9 @@ function checkBalance(currCNY, order, chargeCallback) {
             needCharge = true;
           }
         }
+      }
+      if (needCharge) {
+        needChangeCount = 500 / parseFloat(currCNY.get(maxCoin.coin));
       }
       let charge_obj = {
         amount: String(needChangeCount.toFixed(8)),
