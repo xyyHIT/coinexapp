@@ -173,7 +173,7 @@ function checkBalance(order, chargeCallback) {
         var balance = myBalances[coin].available;
         if (coin == 'BTC' || coin == 'BCH' || coin == 'ETH' || coin == 'USDT') {
           coin = 'CET' + coin;
-          if (coin == order.myIn.market) {
+          if (coin == buy_order.market) {
             if (parseFloat(balance) < buy_order.price * buy_order.amount) {
               needCharge = true;
               needChangeCount = buy_order.price * buy_order.amount - parseFloat(balance);
@@ -184,7 +184,7 @@ function checkBalance(order, chargeCallback) {
       }
       let charge_obj = {
         amount: String(needChangeCount.toFixed(8)),
-        market: maxCoin.coin,
+        market: buy_order.market,
         needCharge: needCharge
       }
       callback(null, charge_obj);
