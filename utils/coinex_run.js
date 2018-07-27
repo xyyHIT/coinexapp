@@ -162,7 +162,7 @@ function checkBalance(currCNY, order, chargeCallback) {
       })
     },
     function (myBalances, callback) {
-      var maxBalance = -1;
+      var maxBalance = -1.0;
       var needChangeCount = 0;
       var maxCoin = null;
       var needCharge = true;
