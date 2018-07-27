@@ -78,8 +78,10 @@ function intervalFunc() {
             logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
             if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
               // 判断是否有足够
-              checkBalance(currCNY, maxProfitOrder, (charg_cb) => {
-                if (charg_cb.finish) {
+              checkBalance(currCNY, maxProfitOrder, (charge_cb) => {
+                logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
+                if (charge_cb.finish) {
+                  logger.info(" 开始订单 ... ...");
                   async.series({
                     buy: function (back) {
                       placeLimitOrder(maxProfitOrder.myOut, 'buy', (sell_cb) => {
@@ -219,7 +221,8 @@ function checkBalance(currCNY, order, chargeCallback) {
         }
       }
       if (needCharge) {
-        needChangeCount = 500 / parseFloat(currCNY.get(maxCoin.coin));
+        needChangeCount = 500.0 / parseFloat(currCNY.get(maxCoin.coin));
+        logger.info("needChangeCount ===>" + needChangeCount);
       }
       let charge_obj = {
         amount: String(needChangeCount.toFixed(8)),
