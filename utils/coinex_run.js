@@ -176,7 +176,7 @@ function checkBalance(order, chargeCallback) {
           if (coin == buy_order.market) {
             if (parseFloat(balance) < buy_order.price * buy_order.amount) {
               needCharge = true;
-              needChangeCount = buy_order.price * buy_order.amount - parseFloat(balance);
+              needChangeCount = buy_order.amount - parseFloat(balance) / buy_order.price;
             }
             break;
           }
