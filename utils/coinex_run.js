@@ -82,25 +82,25 @@ function intervalFunc() {
               logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
               if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
                 // 判断是否有足够
-                checkBalance(currCNY, maxProfitOrder, (charge_cb) => {
+                checkBalance(maxProfitOrder, (charge_cb) => {
                   logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
                   if (charge_cb.finish) {
                     async.series({
-                      sell: function (back) {
-                        placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
-                          if (sell_cb.code == 107) {
-                            back(107, sell_cb);
-                          } else {
-                            back(null, sell_cb);
-                          }
-                        })
-                      },
                       buy: function (back) {
                         placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
                           if (buy_cb.code == 107) {
                             back(107, buy_cb);
                           } else {
                             back(null, buy_cb);
+                          }
+                        })
+                      },
+                      sell: function (back) {
+                        placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
+                          if (sell_cb.code == 107) {
+                            back(107, sell_cb);
+                          } else {
+                            back(null, sell_cb);
                           }
                         })
                       }
@@ -158,8 +158,7 @@ function getMyBalances(balance_callback) {
   })
 }
 // 判断是否完成订单的余额足够。如果余额不够充值
-function checkBalance(currCNY, order, chargeCallback) {
-  logger.info("chargeBalance currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
+function checkBalance(order, chargeCallback) {
   var buy_order = order.myIn;
   async.waterfall([
     function (callback) {
@@ -168,65 +167,20 @@ function checkBalance(currCNY, order, chargeCallback) {
       })
     },
     function (myBalances, callback) {
-      var maxBalance = -1.0;
       var needChangeCount = 0;
-      var maxCoin = null;
-      var needCharge = true;
+      var needCharge = false;
       for (let coin in myBalances) {
-        var balance = myBalances[coin];
-        if (coin == 'BTC') {
+        var balance = myBalances[coin].available;
+        if (coin == 'BTC' || coin == 'BCH' || coin == 'ETH' || coin == 'USDT') {
           coin = 'CET' + coin;
-          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          if (sum > maxBalance) {
-            maxBalance = sum;
-            maxCoin = {
-              coin: coin,
-              total: sum
+          if (coin == order.myIn.market) {
+            if (parseFloat(balance) < buy_order.price * buy_order.amount) {
+              needCharge = true;
+              needChangeCount = buy_order.price * buy_order.amount - parseFloat(balance);
             }
-          }
-        } else if (coin == 'BCH') {
-          coin = 'CET' + coin;
-          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          if (sum > maxBalance) {
-            maxBalance = sum;
-            maxCoin = {
-              coin: coin,
-              total: sum
-            }
-          }
-        } else if (coin == 'ETH') {
-          coin = 'CET' + coin;
-          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          if (sum > maxBalance) {
-            maxBalance = sum;
-            maxCoin = {
-              coin: coin,
-              total: sum
-            }
-          }
-        } else if (coin == 'USDT') {
-          coin = 'CET' + coin;
-          let sum = parseFloat(balance.available) * parseFloat(currCNY.get(coin));
-          if (sum > maxBalance) {
-            maxBalance = sum;
-            maxCoin = {
-              coin: coin,
-              total: sum
-            }
-          }
-        } else if (coin == 'CET') {
-          if (balance.available > buy_order.amount) {
-            // 余额足够，不需要充值
-            needCharge = false;
             break;
-          } else {
-            needCharge = true;
           }
         }
-      }
-      if (needCharge) {
-        needChangeCount = buy_order.amount;
-        logger.info("needChangeCount ===>" + needChangeCount);
       }
       let charge_obj = {
         amount: String(needChangeCount.toFixed(8)),
@@ -238,7 +192,7 @@ function checkBalance(currCNY, order, chargeCallback) {
     function (charge_obj, callback) {
       logger.info("charge_obj ===> " + JSON.stringify(charge_obj));
       if (charge_obj.needCharge) {
-        placeMarketOrder(charge_obj, 'buy', (order_cb) => {
+        placeMarketOrder(charge_obj, 'sell', (order_cb) => {
           logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
           callback(null, {
             finish: true
