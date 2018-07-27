@@ -177,9 +177,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-          }
-          if (sum < 500) {
-            needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            if (sum < 500) {
+              needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            }
           }
         } else if (coin == 'BCH') {
           coin = 'CET' + coin;
@@ -190,9 +190,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-          }
-          if (sum < 500) {
-            needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            if (sum < 500) {
+              needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            }
           }
         } else if (coin == 'ETH') {
           coin = 'CET' + coin;
@@ -203,9 +203,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-          }
-          if (sum < 500) {
-            needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            if (sum < 500) {
+              needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            }
           }
         } else if (coin == 'USDT') {
           coin = 'CET' + coin;
@@ -216,9 +216,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
-          }
-          if (sum < 500) {
-            needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            if (sum < 500) {
+              needChangeCount = 500 / parseFloat(currCNY.get(coin));
+            }
           }
         } else if (coin == 'CET') {
           if (balance.available > buy_order.amount) {
