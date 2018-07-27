@@ -280,7 +280,7 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
       var obj = v[index];
       var myOutPrice = parseFloat(obj[0]);
       var myOutCount = parseFloat(obj[1]);
-      if (myOutCount >= 100 && myOutCount <= 20000) {
+      if (myOutCount >= 100) {
         for (let [key, value] of lowSellPrice) {
           if (k != key) {
             for (let i in value) {
