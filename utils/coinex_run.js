@@ -82,20 +82,20 @@ function intervalFunc() {
                 if (charg_cb.finish) {
                   async.series({
                     buy: function (back) {
-                      placeLimitOrder(maxProfitOrder.myIn, 'sell', (buy_cb) => {
-                        if (buy_cb.code == 107) {
-                          back(107, buy_cb);
-                        } else {
-                          back(null, buy_cb);
-                        }
-                      })
-                    },
-                    sell: function (back) {
                       placeLimitOrder(maxProfitOrder.myOut, 'buy', (sell_cb) => {
                         if (sell_cb.code == 107) {
                           back(107, sell_cb);
                         } else {
                           back(null, sell_cb);
+                        }
+                      })
+                    },
+                    sell: function (back) {
+                      placeLimitOrder(maxProfitOrder.myIn, 'sell', (buy_cb) => {
+                        if (buy_cb.code == 107) {
+                          back(107, buy_cb);
+                        } else {
+                          back(null, buy_cb);
                         }
                       })
                     }
