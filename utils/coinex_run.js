@@ -81,7 +81,6 @@ function intervalFunc() {
               checkBalance(currCNY, maxProfitOrder, (charge_cb) => {
                 logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
                 if (charge_cb.finish) {
-                  logger.info(" 开始订单 ... ...");
                   async.series({
                     buy: function (back) {
                       placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
