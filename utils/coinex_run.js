@@ -271,8 +271,8 @@ function strMapToObj(strMap) {
 
 function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
   logger.debug("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
-  logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
+  logger.debug(JSON.stringify(strMapToObj(lowSellPrice)));
+  logger.debug(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   var orders = [];
   for (let [k, v] of highBuyerPrice) {
@@ -295,11 +295,12 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
                 var outOrder = myOutPrice * myInCount * outUSD;
                 var inOrder = myInPrice * myInCount * inUSD;
                 var profit = outOrder - inOrder;
-                if (profit > (outOrder + inOrder) * 0.002) {
+                var takes = (outOrder + inOrder) * 0.002;
+                if (profit > takes) {
                   // 发现一组匹配
                   // logger.info("myIn ===> " + myInPrice + " " + myOutCount);
                   // logger.info("myOut ===> " + myOutPrice + " " + myOutCount);
-                  // logger.info("my profit ===> " + profit);
+                  logger.info("my profit ===> " + profit + " takes ===>" + takes);
                   orders.push({
                     profit: profit,
                     myIn: {
