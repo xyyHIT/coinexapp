@@ -218,16 +218,17 @@ function checkBalance(currCNY, order, chargeCallback) {
           }
         }
       }
-      let sell_obj = {
+      let charge_obj = {
         amount: String(needChangeCount),
         market: maxCoin.coin,
         needCharge: needCharge
       }
-      callback(null, sell_obj);
+      callback(null, charge_obj);
     },
     function (charge, callback) {
+      logger.info("charge ===> " + JSON.stringify(charge));
       if (charge.needCharge) {
-        placeMarketOrder(charge, 'buy', (order_cb) => {
+        placeMarketOrder(charge, 'sell', (order_cb) => {
           logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
           callback(null, {
             finish: true
@@ -267,8 +268,8 @@ function strMapToObj(strMap) {
 
 function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
   logger.debug("currCNY ===> " + JSON.stringify(strMapToObj(currCNY)));
-  logger.debug(JSON.stringify(strMapToObj(lowSellPrice)));
-  logger.debug(JSON.stringify(strMapToObj(highBuyerPrice)));
+  logger.info(JSON.stringify(strMapToObj(lowSellPrice)));
+  logger.info(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   var orders = [];
   for (let [k, v] of highBuyerPrice) {
