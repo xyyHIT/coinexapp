@@ -179,7 +179,7 @@ function checkBalance(currCNY, order, chargeCallback) {
             }
           }
           if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+            needChangeCount = 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'BCH') {
           coin = 'CET' + coin;
@@ -192,7 +192,7 @@ function checkBalance(currCNY, order, chargeCallback) {
             }
           }
           if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+            needChangeCount = 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'ETH') {
           coin = 'CET' + coin;
@@ -205,7 +205,7 @@ function checkBalance(currCNY, order, chargeCallback) {
             }
           }
           if (sum < 500) {
-            needChangeCount += 500 / parseFloat(currCNY.get(coin));
+            needChangeCount = 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'USDT') {
           coin = 'CET' + coin;
@@ -216,6 +216,9 @@ function checkBalance(currCNY, order, chargeCallback) {
               coin: coin,
               total: sum
             }
+          }
+          if (sum < 500) {
+            needChangeCount = 500 / parseFloat(currCNY.get(coin));
           }
         } else if (coin == 'CET') {
           if (balance.available > buy_order.amount) {
@@ -234,10 +237,10 @@ function checkBalance(currCNY, order, chargeCallback) {
       }
       callback(null, charge_obj);
     },
-    function (charge, callback) {
-      logger.info("charge ===> " + JSON.stringify(charge));
-      if (charge.needCharge) {
-        placeMarketOrder(charge, 'sell', (order_cb) => {
+    function (charge_obj, callback) {
+      logger.info("charge_obj ===> " + JSON.stringify(charge_obj));
+      if (charge_obj.needCharge) {
+        placeMarketOrder(charge_obj, 'sell', (order_cb) => {
           logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
           callback(null, {
             finish: true
