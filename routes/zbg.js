@@ -9,7 +9,6 @@ var async = require('async');
 router.post('/getByWebId', (req, res, next) => {
   let currTime = Date.now();
   signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
-    console.log(cb);
     let post_options = {
       url: 'https://api.zbg.com/exchange/config/controller/website/marketcontroller/getByWebId',
       method: 'post',
@@ -33,7 +32,6 @@ router.post('/getByWebId', (req, res, next) => {
 router.post('/getCurrencyList', (req, res, next) => {
   let currTime = Date.now();
   signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
-    console.log(cb);
     let post_options = {
       url: 'https://api.zbg.com/exchange/config/controller/website/currencycontroller/getCurrencyList',
       method: 'post',
@@ -57,7 +55,6 @@ router.post('/getCurrencyList', (req, res, next) => {
 router.post('/getuserinfo', (req, res, next) => {
   let currTime = Date.now();
   signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
-    console.log(cb);
     let post_options = {
       url: 'https://api.zbg.com/exchange/user/controller/website/usercontroller/getuserinfo',
       method: 'post',
@@ -128,7 +125,6 @@ function queryBalance(user, balance_cb) {
           var index = 0;
           do {
             var obj = body.datas.list[index];
-            console.log(obj);
             if (obj.currencyTypeId == 22) {
               balance.push({
                 zt: obj.amount
