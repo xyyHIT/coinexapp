@@ -79,49 +79,75 @@ router.post('/getuserinfo', (req, res, next) => {
 })
 
 router.post('/findbypage', (req, res, next) => {
+  let userIndex = req.body.user;
+  queryBalance(settings.zbg[userIndex], function (balance_cb) {
+    res.json(balance_cb);
+  })
+})
+
+router.post('/myBalance', (req, res, next) => {
+  async.map(settings.zbg, function (user, callback) {
+      queryBalance(user, (balance_cb) => {
+        callback(null, balance_cb);
+      })
+    },
+    function (error, results) {
+      res.json(results);
+    })
+})
+
+function queryBalance(user, balance_cb) {
   let currTime = Date.now();
   let postBody = {
     "pageSize": "",
     "pageNum": ""
   }
-  let user = req.body.user;
-  signature.zbg(settings.zbg[user], currTime, postBody, true, (cb) => {
-    let post_options = {
-      url: 'https://api.zbg.com/exchange/fund/controller/website/fundcontroller/findbypage',
-      method: 'post',
-      headers: {
-        Apiid: settings.zbg[user].access_id,
-        Timestamp: currTime,
-        Sign: cb.signature
-      },
-      json: true,
-      body: postBody
-    }
-    request(post_options, (err, response, body) => {
-      if (err) {
-
-      } else {
-        var balance = [];
-        var index = 0;
-        do {
-          var obj = body.datas.list[index];
-          console.log(obj);
-          if (obj.currencyTypeId == 22) {
-            balance.push({
-              zt: obj.amount
-            })
-          } else if (obj.currencyTypeId == 11) {
-            balance.push({
-              usdt: obj.amount
-            })
-          }
-          index++;
-        } while (balance.length < 2);
-        res.json(balance);
+  async.waterfall([
+    function (callback) {
+      signature.zbg(user, currTime, postBody, true, (sign_cb) => {
+        callback(null, sign_cb.signature);
+      })
+    },
+    function (sign, callback) {
+      let post_options = {
+        url: 'https://api.zbg.com/exchange/fund/controller/website/fundcontroller/findbypage',
+        method: 'post',
+        headers: {
+          Apiid: user.access_id,
+          Timestamp: currTime,
+          Sign: sign
+        },
+        json: true,
+        body: postBody
       }
-    })
+      request(post_options, (err, response, body) => {
+        if (err) {
+
+        } else {
+          var balance = [];
+          var index = 0;
+          do {
+            var obj = body.datas.list[index];
+            console.log(obj);
+            if (obj.currencyTypeId == 22) {
+              balance.push({
+                zt: obj.amount
+              })
+            } else if (obj.currencyTypeId == 11) {
+              balance.push({
+                usdt: obj.amount
+              })
+            }
+            index++;
+          } while (balance.length < 2);
+          callback(null, balance);
+        }
+      })
+    }
+  ], function (err, result) {
+    balance_cb(result);
   })
-})
+}
 
 router.post('/placeOrder', (req, res, next) => {
   let currTime = Date.now();
