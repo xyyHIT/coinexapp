@@ -251,6 +251,9 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
               // 如果卖出的价格高于我买入的价格 并且 卖出的总数能够大于
               if (myOutCount >= myInCount && myInCount >= 100) {
                 // 发现一组匹配, 判断手续费是否足够
+                if (myInCount > 2000) {
+                  myInCount = 2000;
+                }
                 var outUSD = currCNY.get(k);
                 var inUSD = currCNY.get(key);
                 var outOrder = myOutPrice * myInCount * outUSD;
