@@ -22,10 +22,15 @@ module.exports = {
       }
     }
   },
-  zbg: {
-    access_id: '7emF7KtZrs07emF7KtZrs1',
-    secret_key: '77bcd0aa61128921d732342574cc0f0f',
-  },
+  zbg: [{
+      access_id: '7emEfjwxMLg7emEfjwxMLh',
+      secret_key: '4ebc27cdb955561242f0385e6a81cadb',
+    },
+    {
+      access_id: '7emF7KtZrs07emF7KtZrs1',
+      secret_key: '77bcd0aa61128921d732342574cc0f0f',
+    },
+  ],
   // 第一个是程序开始时卖出BAC的账户
   asiaex: [{
     api_key: 'Vnzb9PG32VaxkLEAE0VeP8UmlCcJDQYF',

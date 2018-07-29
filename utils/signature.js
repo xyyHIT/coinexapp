@@ -17,8 +17,8 @@ let signature = function (params, isJSON, cb) {
   });
 }
 
-let zbg = function (currTime, params, isJSON, cb) {
-  var str = settings.zbg.access_id + currTime;
+let zbg = function (zbg_user, currTime, params, isJSON, cb) {
+  var str = zbg_user.access_id + currTime;
   if (isJSON) {
     str += JSON.stringify(params);
   } else {
@@ -27,7 +27,7 @@ let zbg = function (currTime, params, isJSON, cb) {
     //str.replace(new RegExp('=','g'),'');
     //str.replace(new RegExp('&','g'),'');
   }
-  str += settings.zbg.secret_key;
+  str += zbg_user.secret_key;
   console.log("str ===> " + str);
   cb({
     signature: md5(str).toLowerCase()
