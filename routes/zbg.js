@@ -122,8 +122,7 @@ function queryBalance(user, balance_cb) {
 
         } else {
           var balance = [];
-          var index = 0;
-          do {
+          for (let index in body.datas.list) {
             var obj = body.datas.list[index];
             if (obj.currencyTypeId == 22) {
               balance.push({
@@ -133,9 +132,12 @@ function queryBalance(user, balance_cb) {
               balance.push({
                 usdt: obj.amount
               })
+            } else if (obj.currencyTypeId == 7) {
+              balance.push({
+                eos: obj.amount
+              })
             }
-            index++;
-          } while (balance.length < 2);
+          }
           callback(null, balance);
         }
       })
