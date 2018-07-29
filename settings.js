@@ -27,8 +27,8 @@ module.exports = {
       secret_key: '4ebc27cdb955561242f0385e6a81cadb',
     },
     {
-      access_id: '7emF7KtZrs07emF7KtZrs1',
-      secret_key: '77bcd0aa61128921d732342574cc0f0f',
+      access_id: '7evyaZ9BReC7evyaZ9BReD',
+      secret_key: '9d394bd81d0cea7725a9b79a7b19bcf9',
     },
   ],
   // 第一个是程序开始时卖出BAC的账户
