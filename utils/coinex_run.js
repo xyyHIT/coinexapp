@@ -256,7 +256,7 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
                 var outOrder = myOutPrice * myInCount * outUSD;
                 var inOrder = myInPrice * myInCount * inUSD;
                 var profit = outOrder - inOrder;
-                var takes = (outOrder + inOrder) * 0.002;
+                var takes = (outOrder + inOrder) * 0.0015;
                 if (profit > takes) {
                   // 发现一组匹配
                   // logger.info("myIn ===> " + myInPrice + " " + myOutCount);
