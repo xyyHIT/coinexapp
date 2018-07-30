@@ -5,10 +5,24 @@ var signature = require('../utils/signature');
 var settings = require('../settings');
 var async = require('async');
 
+router.get('/entrusts', (req, res, next) => {
+  let options = {
+    url: 'https://kline.zbg.com/api/data/v1/entrusts?marketId=' + req.query.marketId,
+    method: 'get',
+    json: true,
+  }
+  request(options, (err, response, body) => {
+    if (err) {
+
+    } else {
+      res.json(body);
+    }
+  })
+})
 
 router.post('/getByWebId', (req, res, next) => {
   let currTime = Date.now();
-  signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
+  signature.zbg(settings.zbg[0], currTime, '', false, (cb) => {
     let post_options = {
       url: 'https://api.zbg.com/exchange/config/controller/website/marketcontroller/getByWebId',
       method: 'post',
@@ -31,12 +45,12 @@ router.post('/getByWebId', (req, res, next) => {
 
 router.post('/getCurrencyList', (req, res, next) => {
   let currTime = Date.now();
-  signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
+  signature.zbg(settings.zbg[0], currTime, '', false, (cb) => {
     let post_options = {
       url: 'https://api.zbg.com/exchange/config/controller/website/currencycontroller/getCurrencyList',
       method: 'post',
       headers: {
-        Apiid: settings.zbg["azhe"].access_id,
+        Apiid: settings.zbg[0].access_id,
         Timestamp: currTime,
         Sign: cb.signature
       },
@@ -54,12 +68,12 @@ router.post('/getCurrencyList', (req, res, next) => {
 
 router.post('/getuserinfo', (req, res, next) => {
   let currTime = Date.now();
-  signature.zbg(settings.zbg["azhe"], currTime, '', false, (cb) => {
+  signature.zbg(settings.zbg[0], currTime, '', false, (cb) => {
     let post_options = {
       url: 'https://api.zbg.com/exchange/user/controller/website/usercontroller/getuserinfo',
       method: 'post',
       headers: {
-        Apiid: settings.zbg["azhe"].access_id,
+        Apiid: settings.zbg[0].access_id,
         Timestamp: currTime,
         Sign: cb.signature
       },
@@ -118,6 +132,7 @@ function queryBalance(user, balance_cb) {
         body: postBody
       }
       request(post_options, (err, response, body) => {
+        logger.info("body ===>" + JSON.stringify(body));
         if (err) {
 
         } else {
