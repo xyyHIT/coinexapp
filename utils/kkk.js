@@ -208,7 +208,7 @@ function checkBalance(currCNY, order, chargeCallback) {
     },
     function (charge_obj, callback) {
       logger.info("charge_obj ===> " + JSON.stringify(charge_obj));
-      placeMarketOrder(charge_obj, 'sell', (order_cb) => {
+      placeMarketOrder(charge_obj, 'buy', (order_cb) => {
         logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
         callback(null, {
           finish: true
