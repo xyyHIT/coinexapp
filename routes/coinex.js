@@ -5,10 +5,10 @@ var signature = require('../utils/signature');
 var settings = require('../settings');
 
 
-router.get('/account', function(req, res, next) {
+router.get('/account', function (req, res, next) {
   let currTime = Date.now();
-  var str = "access_id="+settings.coinex.access_id+"&tonce="+currTime;
-  signature.signature(str, false, function(cb) {
+  var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
+  signature.signature(str, false, function (cb) {
     console.log("cb ===>" + JSON.stringify(cb));
     let options = {
       url: 'https://api.coinex.com/v1/balance/info',
@@ -19,9 +19,9 @@ router.get('/account', function(req, res, next) {
         access_id: settings.coinex.access_id,
         tonce: currTime
       },
-      json:true,
+      json: true,
     }
-    console.log('options ===> '+ JSON.stringify(options));
+    console.log('options ===> ' + JSON.stringify(options));
     request.get(options, (err, response, body) => {
       if (err) {
 
@@ -32,7 +32,7 @@ router.get('/account', function(req, res, next) {
   })
 });
 
-router.get('/market', function(req, res, next) {
+router.get('/market', function (req, res, next) {
   let options = {
     url: 'https://api.coinex.com/v1/market/list',
     json: true
@@ -47,28 +47,42 @@ router.get('/market', function(req, res, next) {
   })
 });
 
-router.get('/market/ticker', function(req, res, next) {
+router.get('/market/depth', function (req, res, next) {
+  let depth_options = {
+    url: 'https://api.coinex.com/v1/market/depth?market=' + req.query.market + '&limit=5&merge=0.00000001',
+    method: 'get',
+    json: true
+  }
+  request(depth_options, (err, response, body) => {
+    if (err) {
+
+    } else {
+      res.json(body);
+    }
+  })
+})
+
+router.get('/market/ticker', function (req, res, next) {
   let options = {
-    url : 'https://api.coinex.com/v1/market/ticker',
+    url: 'https://api.coinex.com/v1/market/ticker',
     json: true,
     qs: {
-      market: 'CETBCH'
+      market: req.query.market
     }
   }
-  let markets = ["CETBCH","CETBTC","CETETH","CETUSDT"];
 
   request.get(options, (err, response, body) => {
     if (err) {
 
     } else {
-      console.log("price ===>" + JSON.stringify(body));
+      res.json(body);
     }
   })
 });
 
-router.get('/market/deals', function(req, res, next) {
+router.get('/market/deals', function (req, res, next) {
   let options = {
-    url : 'https://api.coinex.com/v1/market/deals',
+    url: 'https://api.coinex.com/v1/market/deals',
     json: true,
     qs: {
       market: 'CETBCH',
@@ -108,7 +122,9 @@ router.post('/trading/place_market', (req, res, next) => {
     }
     request(options, (err, response, body) => {
       if (err) {
-        ret.json({result: err});
+        ret.json({
+          result: err
+        });
       } else {
         console.log(JSON.stringify(body));
         res.json(body);

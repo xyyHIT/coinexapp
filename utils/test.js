@@ -11,105 +11,33 @@ var async = require('async');
 // signature.zbg(currTime, json, true, function(cb) {
 //   console.log(cb);
 // })
-chargeBalance({}, function (callback) {
-  console.log(callback)
-})
+// chargeBalance({}, function (callback) {
+//   console.log(callback)
+// })
+var lastTimestamp = 0;
+var lastHourCount = 0;
+var maxHortCount = 10;
+setInterval(intervalFunc, 1000);
 
-function chargeBalance(currCNY, callback) {
-  currCNY = new Map();
-  currCNY.set("BTC", "8110.33");
-  currCNY.set("ETH", "473.874");
-  currCNY.set("BCH", "863.257");
-  currCNY.set("USDT", "0.996413");
-  //1. 查询当前余额
-  let currTime = Date.now();
-  var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
-  signature.signature(str, false, function (cb) {
-    let options = {
-      url: 'https://api.coinex.com/v1/balance/info',
-      headers: {
-        authorization: cb.signature
-      },
-      qs: {
-        access_id: settings.coinex.access_id,
-        tonce: currTime
-      },
-      json: true,
-    }
-    request.get(options, (err, response, body) => {
-      if (err) {
-        logger.error(err);
-      } else {
-        logger.info(" inininini ===>" + JSON.stringify(body));
-        var maxBalance = 0;
-        var needChangeCount = 0;
-        var maxCoin = null;
-        for (let coin in body.data) {
-          logger.info("let coin ===>" + coin);
-          var balance = body.data[coin];
-
-          if (coin == 'BTC') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETBTC',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'BCH') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETBCH',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'ETH') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETETH',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          } else if (coin == 'USDT') {
-            let sum = parseFloat(balance.available * currCNY.get(coin));
-            if (sum > maxBalance) {
-              maxBalance = sum;
-              maxCoin = {
-                coin: 'CETUSDT',
-                total: sum
-              }
-              logger.info("max coin ===> " + maxCoin);
-            }
-            if (sum < 500) {
-              needChangeCount += parseFloat(500 / currCNY.get(coin));
-            }
-          }
-        }
-        logger.info(" maxCoinBalance ===> " + JSON.stringify(maxCoin));
-        logger.info(" maxBalance ===> " + JSON.stringify(maxBalance));
-        let sell_obj = {
-          amount: String(needChangeCount),
-          market: maxCoin.coin
-        }
-        logger.info(" sell_obj ===> " + JSON.stringify(sell_obj));
-      }
-    })
-  })
+function intervalFunc() {
+  var callTime = Date.now() / 1000;
+  if (callTime - lastTimestamp >= 20) {
+    var date_call_time = new Date(callTime * 1000);
+    var year = date_call_time.getFullYear();
+    var month = date_call_time.getMonth() + 1;
+    var date = date_call_time.getDate();
+    var hour = date_call_time.getHours();
+    var min = date_call_time.getMinutes();
+    var sec = date_call_time.getSeconds();
+    var stringTime = [year, month, date].join('-') + " " + hour + ":" + min + ":" + sec;
+    lastTimestamp = Date.parse(new Date(stringTime)) / 1000;
+    lastHourCount = 0;
+  }
+  if (lastHourCount < maxHortCount) {
+    console.log("lastHourCount ===> " + lastHourCount);
+    console.log("lastTimestamp ===> " + lastTimestamp);
+    lastHourCount += 1;
+  } else {
+    console.log(new Date(lastTimestamp * 1000).toLocaleString() + " " + lastHourCount);
+  }
 }
