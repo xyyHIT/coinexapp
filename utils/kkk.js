@@ -94,23 +94,25 @@ function intervalFunc() {
                     logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
                     if (charge_cb.finish) {
                       async.series({
-                        buy: function (back) {
-                          placeLimitOrder(maxProfitOrder.myIn, 'buy', (buy_cb) => {
-                            if (buy_cb.code == 107) {
-                              back(107, buy_cb);
-                            } else {
-                              lastHourCount += maxProfitOrder.myIn.amount;
-                              back(null, buy_cb);
-                            }
-                          })
-                        },
+                        // 先卖掉我的CET换回需要的币
                         sell: function (back) {
-                          placeLimitOrder(maxProfitOrder.myOut, 'sell', (sell_cb) => {
+                          placeLimitOrder(maxProfitOrder.myIn, 'sell', (sell_cb) => {
                             if (sell_cb.code == 107) {
                               back(107, sell_cb);
                             } else {
-                              lastHourCount += maxProfitOrder.myOut.amount;
+                              lastHourCount += maxProfitOrder.myIn.amount;
                               back(null, sell_cb);
+                            }
+                          })
+                        },
+                        // 再用另外的币种买回CET
+                        buy: function (back) {
+                          placeLimitOrder(maxProfitOrder.myOut, 'buy', (buy_cb) => {
+                            if (buy_cb.code == 107) {
+                              back(107, buy_cb);
+                            } else {
+                              lastHourCount += maxProfitOrder.myOut.amount;
+                              back(null, buy_cb);
                             }
                           })
                         }
