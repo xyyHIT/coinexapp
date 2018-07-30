@@ -132,7 +132,7 @@ function queryBalance(user, balance_cb) {
         body: postBody
       }
       request(post_options, (err, response, body) => {
-        logger.info("body ===>" + JSON.stringify(body));
+        console.log("body ===> " + JSON.stringify(body));
         if (err) {
 
         } else {
