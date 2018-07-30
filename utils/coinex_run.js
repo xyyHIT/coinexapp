@@ -56,24 +56,16 @@ function intervalFunc() {
         async.each(buys, function (category, callback) {
           let depth_options = {
             url: 'https://api.coinex.com/v1/market/depth?market=' + category + '&limit=10&merge=0.00000001',
-            method: 'get'
+            method: 'get',
+            json: true
           }
           request(depth_options, (err, response, body) => {
             logger.debug(category + " info body ===> " + body);
             if (err) {
 
             } else {
-              var ret = JSON.parse(body);
-              // var currLowPrice = 1.0;
-              // ret.data.asks.forEach(element => {
-              //   if (parseFloat(element[1]) >= 100) {
-              //     if (currLowPrice > element[0]) {
-              //       lowSellPrice.set(category, element);
-              //     }
-              //   }
-              // });
-              lowSellPrice.set(category, ret.data.asks);
-              highBuyerPrice.set(category, ret.data.bids);
+              lowSellPrice.set(category, body.data.asks);
+              highBuyerPrice.set(category, body.data.bids);
               callback(null);
             }
           })
@@ -98,7 +90,7 @@ function intervalFunc() {
                 logger.info("find MAX profit Order ===>" + JSON.stringify(maxProfitOrder));
                 if (maxProfitOrder && maxProfitOrder.myOut && maxProfitOrder.myIn) {
                   // 判断是否有足够
-                  checkBalance(maxProfitOrder, (charge_cb) => {
+                  checkBalance(currCNY, maxProfitOrder, (charge_cb) => {
                     logger.info("charge_cb ===> " + JSON.stringify(charge_cb));
                     if (charge_cb.finish) {
                       async.series({
@@ -142,7 +134,7 @@ function intervalFunc() {
   }
 }
 
-function getMyBalances(balance_callback) {
+function getMyBalances(currCNY, balance_callback) {
   async.waterfall([
     function (callback) {
       let currTime = Date.now();
@@ -172,40 +164,46 @@ function getMyBalances(balance_callback) {
       })
     }
   ], function (err, result) {
-    balance_callback(result);
+    var balanceMap = {};
+    var max_balance_usd = 0;
+    async.eachOf(result, function (value, key, callback) {
+      if (buys['CET' + key]) {
+        if (currCNY.get('CET' + key) * value > max_balance_usd) {
+          balanceMap['MAX'] = key;
+        }
+      } else if (key == 'CET') {
+        balanceMap['CET'] = value;
+      }
+      callback();
+    }, function (err) {
+      console.log(balanceMap);
+    })
+    balance_callback(balanceMap);
   })
 }
 // 判断是否完成订单的余额足够。如果余额不够充值
-function checkBalance(order, chargeCallback) {
+function checkBalance(currCNY, order, chargeCallback) {
   var buy_order = order.myIn;
   async.waterfall([
+    // 查询余额
     function (callback) {
       getMyBalances((balance_cb) => {
         callback(null, balance_cb);
       })
     },
+    // 判断是否需要充值
     function (myBalances, callback) {
-      var needChangeCount = 0;
-      var needCharge = false;
-      for (let coin in myBalances) {
-        var balance = myBalances[coin].available;
-        if (coin == 'BTC' || coin == 'BCH' || coin == 'ETH' || coin == 'USDT') {
-          coin = 'CET' + coin;
-          if (coin == buy_order.market) {
-            if (parseFloat(balance) < buy_order.price * buy_order.amount) {
-              needCharge = true;
-              needChangeCount = buy_order.amount - parseFloat(balance) / buy_order.price;
-            }
-            break;
-          }
+      if (order.myIn.amount < myBalances["CET"]) {
+        //余额足够，直接跳出
+        callback('no need charge', myBalances);
+      } else {
+        //余额不足。需要充值
+        var max_category = 'CET' + myBalances["max"];
+        let charge_obj = {
+          amount: String(parseFloat(500 / currCNY.get(max_category)).toFixed(8)),
+          market: max_category
         }
       }
-      let charge_obj = {
-        amount: String(needChangeCount.toFixed(8)),
-        market: buy_order.market,
-        needCharge: needCharge
-      }
-      callback(null, charge_obj);
     },
     function (charge_obj, callback) {
       logger.info("charge_obj ===> " + JSON.stringify(charge_obj));
@@ -254,26 +252,23 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
   logger.debug(JSON.stringify(strMapToObj(highBuyerPrice)));
   // 循环买入低价的价格
   var orders = [];
-  for (let [k, v] of highBuyerPrice) {
+  for (let [k, v] of lowSellPrice) {
     for (let index in v) {
       var obj = v[index];
-      var myOutPrice = parseFloat(obj[0]);
-      var myOutCount = parseFloat(obj[1]);
-      if (myOutCount >= 100) {
-        for (let [key, value] of lowSellPrice) {
+      var myInPrice = parseFloat(obj[0]);
+      var myInCount = parseFloat(obj[1]);
+      if (myInCount >= 100 && myInCount <= 5000) {
+        for (let [key, value] of highBuyerPrice) {
           if (k != key) {
             for (let i in value) {
               var in_obj = value[i];
-              var myInPrice = parseFloat(in_obj[0]);
-              var myInCount = parseFloat(in_obj[1]);
+              var myOutPrice = parseFloat(in_obj[0]);
+              var myOutCount = parseFloat(in_obj[1]);
               // 如果卖出的价格高于我买入的价格 并且 卖出的总数能够大于
-              if (myOutCount >= myInCount && myInCount >= 100) {
+              if (myInCount < myOutCount) {
                 // 发现一组匹配, 判断手续费是否足够
-                if (myInCount > 2000) {
-                  myInCount = 2000;
-                }
-                var outUSD = currCNY.get(k);
-                var inUSD = currCNY.get(key);
+                var outUSD = currCNY.get(key);
+                var inUSD = currCNY.get(k);
                 var outOrder = myOutPrice * myInCount * outUSD;
                 var inOrder = myInPrice * myInCount * inUSD;
                 var profit = outOrder - inOrder;
@@ -286,13 +281,13 @@ function findOrder(lowSellPrice, highBuyerPrice, currCNY, cb) {
                   orders.push({
                     profit: profit,
                     myIn: {
-                      market: key,
+                      market: k,
                       amount: myInCount,
                       price: myInPrice,
                       usd: inUSD
                     },
                     myOut: {
-                      market: k,
+                      market: key,
                       amount: myInCount,
                       price: myOutPrice,
                       usd: outUSD
