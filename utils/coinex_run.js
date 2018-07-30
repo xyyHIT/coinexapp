@@ -184,11 +184,10 @@ function getMyBalances(currCNY, balance_callback) {
 }
 // 判断是否完成订单的余额足够。如果余额不够充值
 function checkBalance(currCNY, order, chargeCallback) {
-  var buy_order = order.myIn;
   async.waterfall([
     // 查询余额
     function (callback) {
-      getMyBalances((balance_cb) => {
+      getMyBalances(currCNY, (balance_cb) => {
         callback(null, balance_cb);
       })
     },
@@ -199,27 +198,22 @@ function checkBalance(currCNY, order, chargeCallback) {
         callback('no need charge', myBalances);
       } else {
         //余额不足。需要充值
-        var max_category = 'CET' + myBalances["max"];
+        var max_category = 'CET' + myBalances["MAX"];
         let charge_obj = {
           amount: String(parseFloat(500 / currCNY.get(max_category)).toFixed(8)),
           market: max_category
         }
+        callback(null, charge_obj);
       }
     },
     function (charge_obj, callback) {
       logger.info("charge_obj ===> " + JSON.stringify(charge_obj));
-      if (charge_obj.needCharge) {
-        placeMarketOrder(charge_obj, 'sell', (order_cb) => {
-          logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
-          callback(null, {
-            finish: true
-          })
-        })
-      } else {
+      placeMarketOrder(charge_obj, 'sell', (order_cb) => {
+        logger.info(" 充值完成 ===>" + JSON.stringify(order_cb));
         callback(null, {
           finish: true
-        });
-      }
+        })
+      })
     }
   ], function (err, result) {
     chargeCallback(result);
