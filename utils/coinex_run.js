@@ -165,14 +165,15 @@ function getMyBalances(currCNY, balance_callback) {
     }
   ], function (err, result) {
     var balanceMap = {};
-    var max_balance_usd = 0;
+    var max_balance_usd = -1;
     async.eachOf(result, function (value, key, callback) {
-      if (buys['CET' + key]) {
-        if (currCNY.get('CET' + key) * value > max_balance_usd) {
+      if (key == 'BCH' || key == 'BTC' || key == 'ETH' || key == 'USDT') {
+        var tmp = currCNY.get('CET' + key) * value.available;
+        if (tmp > max_balance_usd) {
           balanceMap['MAX'] = key;
         }
       } else if (key == 'CET') {
-        balanceMap['CET'] = value;
+        balanceMap['CET'] = value.available;
       }
       callback();
     }, function (err) {
