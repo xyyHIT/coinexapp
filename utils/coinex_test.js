@@ -6,14 +6,18 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
 var async = require('async');
 var policy = [{
-    market: ["BTCUSDT", "BTCBCH"],
+    currency: 'BTC',
+    market: ["USDT", "BCH"],
     depth: 5
   },
   {
-    market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
+    currency: 'ETH',
+    market: ["USDT", "BCH", "BTC"],
     depth: 5
   }
 ]
+var currency_set = new Set();
+currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
 async.map(policy, function (market, callback) {
   dealMarket(market, (deal_cb) => {
@@ -28,7 +32,7 @@ function dealMarket(market, deal_cb) {
   async.waterfall([
     function (callback) {
       // 获取合适订单
-      find(market.market, market.depth, (find_cb) => {
+      find(market.currency, market.market, market.depth, (find_cb) => {
         if (find_cb) {
           callback(null, find_cb);
         } else {
@@ -36,18 +40,45 @@ function dealMarket(market, deal_cb) {
         }
       })
     },
+    // 判断余额是否足够
+    function (find_order, callback) {
+      queryBalance(market.currency, (balance_cb) => {
+        if (find_order.myIn.amount > balance_cb.available) {
+          // 余额不足。需要转换
+          chargeBalance(market.currency, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
+            if (charge_cb.code == 107) {
+              // 充值失败
+              callback(charge_cb, null);
+            } else {
+              // 充值成功
+              console.log("充值成功 ===> " + JSON.stringify(charge_cb));
+              callback(null, find_order);
+            }
+          })
+        } else {
+          // 余额足够。直接交易
+          callback(null, find_order);
+        }
+      })
+    },
+    // 下单
     function (find_order, callback) {
       limitOrder(find_order, (order_cb) => {
         callback(null, order_cb);
       })
     }
   ], function (error, results) {
-    deal_cb(results);
+    if (error) {
+      deal_cb(error);
+    } else {
+      deal_cb(results);
+    }
   })
 }
 
 function limitOrder(find_order, order_cb) {
-  async.parallel([
+  console.log("find_order ===> " + JSON.stringify(find_order));
+  async.series([
     function (callback) {
       placeLimitOrder(find_order.myIn, 'buy', (buy_cb) => {
         if (buy_cb.code == 107) {
@@ -73,14 +104,15 @@ function limitOrder(find_order, order_cb) {
   })
 }
 
-function find(market, depth, find_cb) {
+function find(currency, market, depth, find_cb) {
   var lowPriceTakes = new Map();
   var highPriceBids = new Map();
   async.each(market, function (marketName, callback) {
-    queryMarketDepth(marketName, depth, function (depth_cb) {
+    let name = currency + marketName;
+    queryMarketDepth(name, depth, function (depth_cb) {
       if (depth_cb.success) {
-        lowPriceTakes.set(marketName, depth_cb.result.data.asks);
-        highPriceBids.set(marketName, depth_cb.result.data.bids);
+        lowPriceTakes.set(name, depth_cb.result.data.asks);
+        highPriceBids.set(name, depth_cb.result.data.bids);
         callback(null);
       } else {
         callback(depth_cb.result);
@@ -195,56 +227,132 @@ function placeLimitOrder(order, type, callback) {
   })
 }
 
-// function getMyBalances(balance_cb) {
-//   async.waterfall([
-//     function (callback) {
-//       let currTime = Date.now();
-//       var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
-//       signature.signature(str, false, function (cb) {
-//         callback(null, currTime, cb);
-//       })
-//     },
-//     function (currTime, signatureStr, callback) {
-//       let options = {
-//         url: 'https://api.coinex.com/v1/balance/info',
-//         headers: {
-//           authorization: signatureStr.signature
-//         },
-//         qs: {
-//           access_id: settings.coinex.access_id,
-//           tonce: currTime
-//         },
-//         json: true,
-//       }
-//       request.get(options, (err, response, body) => {
-//         if (err) {
+function placeMarketOrder(order, type, callback) {
+  let currTime = Date.now();
+  let postBody = {
+    access_id: settings.coinex.access_id,
+    amount: String(order.amount),
+    market: order.market,
+    tonce: currTime,
+    type: type
+  }
+  signature.signature(postBody, true, (cb) => {
+    let option = {
+      url: 'https://api.coinex.com/v1/order/market',
+      method: 'post',
+      headers: {
+        authorization: cb.signature
+      },
+      json: true,
+      body: postBody
+    }
+    request(option, (err, response, body) => {
+      if (err) {
 
-//         } else {
-//           callback(null, body.data);
-//         }
-//       })
-//     }
-//   ], function (err, result) {
-//     var balanceMap = {};
-//     async.eachOf(result, function (value, key, callback) {
-//       if (buys['CET' + key] || key == 'CET') {
-//         balanceMap['CET' + key] = value;
-//       }
-//       callback();
-//     }, function (err) {
-//       console.log(balanceMap);
-//     })
-//     balance_callback(balanceMap);
-//   })
-// }
-// // 判断余额是否足够，不够就从最多的里面转20000个CET
-// function checkBalance(balance, order, checkBalance_cb) {
-//   if (order.myIn.amount < balance['CETCET']) {
-//     checkBalance_cb({
-//       success: true
-//     });
-//   } else {
-//     // 需要充值，选获取最新价格
+      } else {
+        logger.info("market " + type + " cb ===>" + JSON.stringify(body));
+        callback(body);
+      }
+    })
+  })
+}
 
-//   }
-// }
+// 查询指定货币余额 
+function queryBalance(coin, balance_cb) {
+  async.waterfall([
+    function (callback) {
+      let currTime = Date.now();
+      var str = "access_id=" + settings.coinex.access_id + "&tonce=" + currTime;
+      signature.signature(str, false, function (cb) {
+        callback(null, currTime, cb);
+      })
+    },
+    function (currTime, signatureStr, callback) {
+      let options = {
+        url: 'https://api.coinex.com/v1/balance/info',
+        headers: {
+          authorization: signatureStr.signature
+        },
+        qs: {
+          access_id: settings.coinex.access_id,
+          tonce: currTime
+        },
+        json: true,
+      }
+      request.get(options, (err, response, body) => {
+        if (err) {
+
+        } else {
+          callback(null, body.data);
+        }
+      })
+    }
+  ], function (err, result) {
+    if (coin) {
+      balance_cb(result[coin]);
+    } else {
+      balance_cb(result);
+    }
+  })
+}
+// 充值，先获取最新价格
+function chargeBalance(currency, market, amount, charge_cb) {
+  let coin = market.substring(currency.length);
+  async.waterfall([
+    // 获取当前价格
+    function (callback) {
+      getCurrCoinCurrency((cb) => {
+        callback(null, cb);
+      })
+    },
+    // 查找价格最高
+    function (currency, callback) {
+      queryBalance(null, (balance_cb) => {
+        var max_usd = -1;
+        var max_coin = null;
+        for (let name of currency_set) {
+          if (name != coin) {
+            var price = currency.get(name);
+            var available = balance_cb[name].available;
+            if (price * available > max_usd) {
+              max_coin = name;
+            }
+          }
+        }
+        callback(null, max_coin);
+      })
+    },
+    function (max_coin, callback) {
+      let order = {
+        market: currency + max_coin,
+        amount: amount,
+      };
+      placeMarketOrder(order, 'sell', (order_cb) => {
+        console.log(order_cb);
+        callback(null, order_cb)
+      })
+    }
+  ], function (error, result) {
+    charge_cb(result);
+  })
+}
+
+function getCurrCoinCurrency(cb) {
+  //1. 获取最新价格
+  let option = {
+    url: 'https://api.coinmarketcap.com/v1/ticker/',
+    method: 'get',
+    json: true
+  }
+  var currCNY = new Map();
+  request(option, (err, response, body) => {
+    for (let index in body) {
+      var obj = body[index];
+      if (currency_set.has(obj.symbol)) {
+        currCNY.set(obj.symbol, obj.price_usd);
+      }
+    }
+    cb(currCNY);
+  })
+
+}
