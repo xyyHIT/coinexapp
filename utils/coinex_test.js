@@ -38,7 +38,7 @@ function dealMarket(market, deal_cb) {
     function (find_order, callback) {
       queryBalance(market.currency, (balance_cb) => {
         console.log("查询当前余额 ===> " + JSON.stringify(balance_cb));
-        if (find_order.myIn.amount > balance_cb.available) {
+        if (find_order.myIn.amount * find_order.myIn.price > balance_cb.available) {
           // 余额不足。需要转换
           console.log(" 。。。余额不足。。。");
           chargeBalance(market.currency, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
