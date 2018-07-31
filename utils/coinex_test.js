@@ -43,9 +43,12 @@ function dealMarket(market, deal_cb) {
     // 判断余额是否足够
     function (find_order, callback) {
       queryBalance(market.currency, (balance_cb) => {
+        console.log("查询当前余额 ===> " + JSON.stringify(balance_cb));
         if (find_order.myIn.amount > balance_cb.available) {
           // 余额不足。需要转换
+          console.log(" 。。。余额不足。。。");
           chargeBalance(market.currency, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
+            console.log(" 充值结果 ===> " + JSON.stringify(charge_cb));
             if (charge_cb.code == 107) {
               // 充值失败
               callback(charge_cb, null);
@@ -57,6 +60,7 @@ function dealMarket(market, deal_cb) {
           })
         } else {
           // 余额足够。直接交易
+          console.log(" 。。。余额足够。。。");
           callback(null, find_order);
         }
       })
