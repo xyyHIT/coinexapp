@@ -15,12 +15,12 @@ var policy = [{
   }
 ]
 
-async.each(policy, function (market, callback) {
+async.map(policy, function (market, callback) {
   dealMarket(market, (deal_cb) => {
-    console.log(JSON.stringify(deal_cb));
+    callback(deal_cb);
   })
-}, function (error) {
-
+}, function (error, results) {
+  console.log(JSON.stringify(results));
 })
 
 
