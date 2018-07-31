@@ -38,7 +38,7 @@ function dealMarket(market, deal_cb) {
     },
     function (find_order, callback) {
       limitOrder(find_order, (order_cb) => {
-        callback(order_cb);
+        callback(null, order_cb);
       })
     }
   ], function (error, results) {
