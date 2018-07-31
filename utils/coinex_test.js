@@ -6,16 +6,10 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
 var async = require('async');
 var policy = [{
-    currency: 'BTC',
-    market: ["USDT", "BCH"],
-    depth: 5
-  },
-  {
-    currency: 'ETH',
-    market: ["USDT", "BCH", "BTC"],
-    depth: 5
-  }
-]
+  currency: 'BTC',
+  market: ["USDT", "BCH"],
+  depth: 5
+}]
 var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
