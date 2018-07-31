@@ -32,6 +32,31 @@ router.get('/account', function (req, res, next) {
   })
 });
 
+router.get('/account/deals', function (req, res, next) {
+  let currTime = Date.now();
+  var params = 'access_id=' + settings.coinex.access_id + '&limit=20&market=' + req.query.market + '&page=1&tonce=' + currTime;
+  signature.signature(params, false, (cb) => {
+    let options = {
+      url: 'https://api.coinex.com/v1/order/user/deals?' + params,
+      json: true,
+      method: 'get',
+      headers: {
+        authorization: cb.signature
+      }
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+
+
+
+})
+
 router.get('/market', function (req, res, next) {
   let options = {
     url: 'https://api.coinex.com/v1/market/list',
