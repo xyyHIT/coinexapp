@@ -15,7 +15,7 @@ currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
 async.map(policy, function (market, callback) {
   dealMarket(market, (deal_cb) => {
-    callback(deal_cb);
+    callback(null, deal_cb);
   })
 }, function (error, results) {
   console.log(JSON.stringify(results));
@@ -36,12 +36,13 @@ function dealMarket(market, deal_cb) {
     },
     // 判断余额是否足够
     function (find_order, callback) {
-      queryBalance(market.currency, (balance_cb) => {
+      var need_coin = find_order.myIn.market.substring(market.currency.length);
+      queryBalance(need_coin, (balance_cb) => {
         console.log("查询当前余额 ===> " + JSON.stringify(balance_cb));
-        if (find_order.myIn.amount * find_order.myIn.price > balance_cb.available) {
+        if (find_order.myIn.amount > balance_cb.available) {
           // 余额不足。需要转换
           console.log(" 。。。余额不足。。。");
-          chargeBalance(market.currency, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
+          chargeBalance(need_coin, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
             console.log(" 充值结果 ===> " + JSON.stringify(charge_cb));
             if (charge_cb.code == 107) {
               // 充值失败
@@ -326,7 +327,7 @@ function chargeBalance(currency, market, amount, charge_cb) {
         amount: amount,
       };
       placeMarketOrder(order, 'sell', (order_cb) => {
-        console.log(order_cb);
+        console.log("充值结束 ===> " + JSON.stringify(order_cb));
         callback(null, order_cb)
       })
     }
