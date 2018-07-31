@@ -42,7 +42,7 @@ router.get('/market', function (req, res, next) {
 
     } else {
       console.log("devices body ===>" + JSON.stringify(body));
-
+      res.json(body);
     }
   })
 });
