@@ -421,6 +421,8 @@ function balanceBalance(market_depth_set, balance_cb) {
           needCharge.push(k);
         }
       }
+      console.log("balance info needCharge ===> " + JSON.stringify(needCharge));
+      console.log("balance info max ===> " + JSON.stringify(max));
       callback(null, needCharge, max);
     },
     function (needCharge, max_balance, callback) {
