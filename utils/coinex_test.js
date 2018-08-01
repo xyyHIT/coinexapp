@@ -67,8 +67,16 @@ function dealMarket(policy, deal_cb) {
     // 下单
     function (find_order, callback) {
       if (find_order.myIn && find_order.myOut) {
+        logger.info(" ---------- 开始下单 -------------");
+        logger.info(" 下单信息 ===> " + JSON.stringify(find_order));
         limitOrder(find_order, (order_cb) => {
-          callback(null, order_cb);
+          if (order_cb.success) {
+            logger.info(" 下单结束 ===> 成功");
+            callback(null, order_cb);
+          } else {
+            logger.info(" 下单结束 ===> 失败");
+            callback(null, order_cb);
+          }
         })
       } else {
         callback(null, '未找到合适订单');
@@ -100,8 +108,8 @@ function limitOrder(find_order, order_cb) {
   async.series([
     function (callback) {
       placeLimitOrder(find_order.myIn, 'buy', (buy_cb) => {
-        if (buy_cb.code == 107) {
-          callback(107, buy_cb);
+        if (buy_cb.code != 0) {
+          callback('faild', buy_cb);
         } else {
           //lastHourCount += maxProfitOrder.myIn.amount;
           callback(null, buy_cb);
@@ -110,8 +118,8 @@ function limitOrder(find_order, order_cb) {
     },
     function (callback) {
       placeLimitOrder(find_order.myOut, 'sell', (sell_cb) => {
-        if (sell_cb.code == 107) {
-          callback(107, sell_cb);
+        if (sell_cb.code != 0) {
+          callback('faild', sell_cb);
         } else {
           //lastHourCount += maxProfitOrder.myOut.amount;
           callback(null, sell_cb);
@@ -119,7 +127,18 @@ function limitOrder(find_order, order_cb) {
       })
     }
   ], function (error, results) {
-    order_cb(results);
+    if (error) {
+      order_cb({
+        success: false,
+        done: results
+      });
+    } else {
+      order_cb({
+        success: true,
+        done: results
+      });
+    }
+
   })
 }
 
@@ -235,7 +254,7 @@ function placeLimitOrder(order, type, callback) {
       if (err) {
 
       } else {
-        logger.info("limit " + type + " cb ===>" + JSON.stringify(body));
+        console.log("limit " + type + " cb ===>" + JSON.stringify(body));
         callback(body);
       }
     })
@@ -265,7 +284,7 @@ function placeMarketOrder(order, type, callback) {
       if (err) {
 
       } else {
-        logger.info("market " + type + " cb ===>" + JSON.stringify(body));
+        console.log("market " + type + " cb ===>" + JSON.stringify(body));
         callback(body);
       }
     })
@@ -310,7 +329,6 @@ function queryBalance(coin, balance_cb) {
       for (let v of currency_set) {
         balanceMap.set(v, result[v]);
       }
-      logger.info("余额 ===> " + JSON.stringify(strMapToObj(balanceMap)))
       balance_cb(balanceMap);
     }
   })
