@@ -13,11 +13,19 @@ module.exports = {
       app: {
         type: 'file',
         filename: 'application.log'
+      },
+      balance: {
+        type: 'file',
+        filename: 'balance.log'
       }
     },
     categories: {
       default: {
         appenders: ['out', 'app'],
+        level: 'info'
+      },
+      balance: {
+        appenders: ['out', 'balance'],
         level: 'info'
       }
     }
