@@ -11,7 +11,7 @@ var policy_arr = [{
   market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
   depth: 5
 }, {
-  currcny: "BTC",
+  currency: "BTC",
   market: ["BTCUSDT", "BTCBCH"],
   depth: 5
 }]
