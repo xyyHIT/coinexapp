@@ -140,7 +140,8 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
   for (let [key, value] of lowPriceTakes) {
     value.forEach(low => {
       var myInPrice = low[0];
-      var myInCount = low[1];
+      var totalInCount = low[1];
+      var myInCount = totalInCount / 2;
       for (let [k, v] of highPriceBids) {
         if (key != k) {
           v.forEach(high => {
