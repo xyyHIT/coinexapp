@@ -10,6 +10,10 @@ var policy_arr = [{
   currency: "ETH",
   market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
   depth: 5
+}, {
+  currcny: "BTC",
+  market: ["BTCUSDT", "BTCBCH"],
+  depth: 5
 }]
 let MAX_USD = 200;
 var currency_set = new Set();
@@ -162,11 +166,11 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
           v.forEach(high => {
             var myOutPrice = high[0];
             var myOutCount = high[1];
-            var usd_value = MAX_USD / market_depth_set.get(currency + 'USDT').last;
+            var inCurrency = key.substring(currency.length);
+            var usd_value = MAX_USD / market_depth_set.get(inCurrency + 'USDT').last;
             if (myInCount < myOutCount && myInCount < usd_value) {
               // 开始计算利润
               // 我买入的花费
-              var inCurrency = key.substring(currency.length);
               var in_usd_value = 1;
               if (inCurrency != 'USDT') {
                 in_usd_value = market_depth_set.get(inCurrency + 'USDT').last;
