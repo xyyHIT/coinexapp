@@ -6,10 +6,6 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
 var async = require('async');
 var policy_arr = [{
-  currency: "BTC",
-  market: ["BTCUSDT", "BTCBCH"],
-  depth: 5
-}, {
   currency: "ETH",
   market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
   depth: 5
@@ -314,6 +310,7 @@ function queryBalance(coin, balance_cb) {
       for (let v of currency_set) {
         balanceMap.set(v, result[v]);
       }
+      logger.info("余额 ===> " + JSON.stringify(strMapToObj(balanceMap)))
       balance_cb(balanceMap);
     }
   })
