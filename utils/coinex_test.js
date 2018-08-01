@@ -13,28 +13,16 @@ var policy_arr = [{
 var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
-let BASE_PRICE = ["BTCUSDT", "BCHUSDT", "ETHUSDT"];
-
 var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
 
-// async.map(policy, function (market, callback) {
-//   dealMarket(market, (deal_cb) => {
-//     callback(null, deal_cb);
-//   })
-// }, function (error, results) {
-//   console.log(JSON.stringify(results));
-// })
-
-deal((deal_cb) => {
-  console.log(JSON.stringify(deal_cb));
-})
-
+// setInterval(deal, 500);
 
 function deal(deal_cb) {
   async.waterfall([
     // 获取行情
     function (callback) {
       queryAllMarket((market_depth_set) => {
+        console.log("获取行情 ===> " + JSON.stringify(market_depth_set));
         callback(null, market_depth_set);
       })
     },
