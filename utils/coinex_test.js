@@ -416,6 +416,7 @@ function balanceBalance(market_depth_set, balance_cb) {
             name: k,
             value: v
           }
+          max_balance = tmp;
         }
         if (tmp < 500) {
           needCharge.push(k);
