@@ -45,16 +45,16 @@ function deal(deal_cb) {
       })
     },
     // 处理
-    // function (market_depth_set, callback) {
-    //   async.map(policy_arr, function (policy, cb) {
-    //     dealMarket(market_depth_set, policy, (deal_market_cb) => {
-    //       cb(null, deal_market_cb);
-    //     })
-    //   }, function (err, done) {
-    //     console.log(JSON.stringify(done));
-    //     callback(null, done);
-    //   })
-    // }
+    function (market_depth_set, callback) {
+      async.map(policy_arr, function (policy, cb) {
+        dealMarket(market_depth_set, policy, (deal_market_cb) => {
+          cb(null, deal_market_cb);
+        })
+      }, function (err, done) {
+        console.log(JSON.stringify(done));
+        callback(null, done);
+      })
+    }
   ], function (error, result) {
     console.log(JSON.stringify(result));
   })
@@ -72,15 +72,16 @@ function dealMarket(market_depth_set, policy, deal_cb) {
       });
       // 获取合适订单
       findOrder(market_depth_set, policy.currency, lowPriceTakes, highPriceBids, (order_cb) => {
+        console.log("order_cb ===> " + JSON.stringify(order_cb));
         callback(null, order_cb);
       })
     },
     // 下单
-    function (find_order, callback) {
-      limitOrder(find_order, (order_cb) => {
-        callback(null, order_cb);
-      })
-    }
+    // function (find_order, callback) {
+    //   limitOrder(find_order, (order_cb) => {
+    //     callback(null, order_cb);
+    //   })
+    // }
   ], function (error, results) {
     if (error) {
       deal_cb(error);
