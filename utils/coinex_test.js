@@ -4,6 +4,7 @@ var settings = require('../settings');
 var log4js = require('log4js');
 log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
+var logger_balance = log4js.getLogger('balance');
 var async = require('async');
 var policy_arr = [{
   currency: "ETH",
@@ -15,6 +16,7 @@ var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
 var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
+
 
 setInterval(intervalFunc, 1000);
 
@@ -67,14 +69,11 @@ function dealMarket(policy, deal_cb) {
     // 下单
     function (find_order, callback) {
       if (find_order.myIn && find_order.myOut) {
-        logger.info(" ---------- 开始下单 -------------");
-        logger.info(" 下单信息 ===> " + JSON.stringify(find_order));
         limitOrder(find_order, (order_cb) => {
           if (order_cb.success) {
-            logger.info(" 下单结束 ===> 成功");
+            logger.info(JSON.stringify(find_order));
             callback(null, order_cb);
           } else {
-            logger.info(" 下单结束 ===> 失败");
             callback(null, order_cb);
           }
         })
@@ -329,7 +328,7 @@ function queryBalance(coin, balance_cb) {
       for (let v of currency_set) {
         balanceMap.set(v, result[v]);
       }
-      logger.info("当前余额 ===> " + JSON.stringify(strMapToObj(balanceMap)));
+      logger_balance.info("当前余额 ===> " + JSON.stringify(strMapToObj(balanceMap)));
       balance_cb(balanceMap);
     }
   })
