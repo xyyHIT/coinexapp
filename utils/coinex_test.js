@@ -15,7 +15,9 @@ currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
 var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
 
-// setInterval(deal, 500);
+deal((deal_cb) => {
+  console.log(" ------- 处理结束 ------");
+})
 
 function deal(deal_cb) {
   async.waterfall([
