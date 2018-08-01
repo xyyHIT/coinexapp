@@ -77,9 +77,13 @@ function dealMarket(market_depth_set, policy, deal_cb) {
     },
     // 下单
     function (find_order, callback) {
-      limitOrder(find_order, (order_cb) => {
-        callback(null, order_cb);
-      })
+      if (find_order.myIn && find_order.myOut) {
+        limitOrder(find_order, (order_cb) => {
+          callback(null, order_cb);
+        })
+      } else {
+        callback(null, '未找到合适订单');
+      }
     }
   ], function (error, results) {
     if (error) {
