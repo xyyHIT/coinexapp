@@ -5,59 +5,74 @@ var log4js = require('log4js');
 log4js.configure(settings.log4js);
 var logger = log4js.getLogger(__filename);
 var async = require('async');
-var policy = [{
-  currency: 'BTC',
-  market: ["USDT", "BCH"],
+var policy_arr = [{
+  currency: "BTC",
+  market: ["BTCUSDT", "BTCBCH"],
   depth: 5
 }]
 var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
-async.map(policy, function (market, callback) {
-  dealMarket(market, (deal_cb) => {
-    callback(null, deal_cb);
-  })
-}, function (error, results) {
-  console.log(JSON.stringify(results));
+let BASE_PRICE = ["BTCUSDT", "BCHUSDT", "ETHUSDT"];
+
+var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
+
+// async.map(policy, function (market, callback) {
+//   dealMarket(market, (deal_cb) => {
+//     callback(null, deal_cb);
+//   })
+// }, function (error, results) {
+//   console.log(JSON.stringify(results));
+// })
+
+deal((deal_cb) => {
+  console.log(JSON.stringify(deal_cb));
 })
 
 
-function dealMarket(market, deal_cb) {
+function deal(deal_cb) {
   async.waterfall([
+    // 获取行情
     function (callback) {
-      // 获取合适订单
-      find(market.currency, market.market, market.depth, (find_cb) => {
-        if (find_cb) {
-          callback(null, find_cb);
-        } else {
-          callback('未找到合适订单');
-        }
+      queryAllMarket((market_depth_set) => {
+        callback(null, market_depth_set);
       })
     },
-    // 判断余额是否足够
-    function (find_order, callback) {
-      var need_coin = find_order.myIn.market.substring(market.currency.length);
-      queryBalance(need_coin, (balance_cb) => {
-        console.log("查询当前余额 ===> " + JSON.stringify(balance_cb));
-        if (find_order.myIn.amount > balance_cb.available) {
-          // 余额不足。需要转换
-          console.log(" 。。。余额不足。。。");
-          chargeBalance(need_coin, find_order.myIn.market, find_order.myIn.amount, (charge_cb) => {
-            console.log(" 充值结果 ===> " + JSON.stringify(charge_cb));
-            if (charge_cb.code == 107) {
-              // 充值失败
-              callback(charge_cb, null);
-            } else {
-              // 充值成功
-              console.log("充值成功 ===> " + JSON.stringify(charge_cb));
-              callback(null, find_order);
-            }
-          })
-        } else {
-          // 余额足够。直接交易
-          console.log(" 。。。余额足够。。。");
-          callback(null, find_order);
-        }
+    // 平衡余额
+    function (market_depth_set, callback) {
+      balanceBalance(market_depth_set, (balance_cb) => {
+        callback(null, market_depth_set);
+      })
+    },
+    // 处理
+    // function (market_depth_set, callback) {
+    //   async.map(policy_arr, function (policy, cb) {
+    //     dealMarket(market_depth_set, policy, (deal_market_cb) => {
+    //       cb(null, deal_market_cb);
+    //     })
+    //   }, function (err, done) {
+    //     console.log(JSON.stringify(done));
+    //     callback(null, done);
+    //   })
+    // }
+  ], function (error, result) {
+    console.log(JSON.stringify(result));
+  })
+}
+
+
+function dealMarket(market_depth_set, policy, deal_cb) {
+  async.waterfall([
+    function (callback) {
+      var lowPriceTakes = new Map();
+      var highPriceBids = new Map();
+      policy.market.forEach(market => {
+        lowPriceTakes.set(market, market_depth_set.get(market).asks);
+        highPriceBids.set(market, market_depth_set.get(market).bids);
+      });
+      // 获取合适订单
+      findOrder(market_depth_set, policy.currency, lowPriceTakes, highPriceBids, (order_cb) => {
+        callback(null, order_cb);
       })
     },
     // 下单
@@ -72,6 +87,18 @@ function dealMarket(market, deal_cb) {
     } else {
       deal_cb(results);
     }
+  })
+}
+
+function queryAllMarket(market_depth_cb) {
+  var market_depth = new Map();
+  async.each(charge_set, function (market, callback) {
+    queryMarketDepth(market, 5, (depth_cb) => {
+      market_depth.set(market, depth_cb.result.data);
+      callback(null);
+    })
+  }, function (error) {
+    market_depth_cb(market_depth);
   })
 }
 
@@ -103,32 +130,15 @@ function limitOrder(find_order, order_cb) {
   })
 }
 
-function find(currency, market, depth, find_cb) {
-  var lowPriceTakes = new Map();
-  var highPriceBids = new Map();
-  async.each(market, function (marketName, callback) {
-    let name = currency + marketName;
-    queryMarketDepth(name, depth, function (depth_cb) {
-      if (depth_cb.success) {
-        lowPriceTakes.set(name, depth_cb.result.data.asks);
-        highPriceBids.set(name, depth_cb.result.data.bids);
-        callback(null);
-      } else {
-        callback(depth_cb.result);
-      }
-    })
-  }, function (error, results) {
-    if (error) {
-      find_cb(null);
-    } else {
-      findOrder(lowPriceTakes, highPriceBids, (order_cb) => {
-        find_cb(order_cb);
-      })
-    }
-  })
-}
-
-function findOrder(lowPriceTakes, highPriceBids, order_cb) {
+/**
+ * 
+ * @param {当前市场行情} market_depth_set 
+ * @param {本策略中的交易币} currcny 
+ * @param {低价收单集合} lowPriceTakes 
+ * @param {高价出单集合} highPriceBids 
+ * @param {查找到合适订单} order_cb 
+ */
+function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, order_cb) {
   var order = {};
   var max_profit = 0;
   for (let [key, value] of lowPriceTakes) {
@@ -140,12 +150,23 @@ function findOrder(lowPriceTakes, highPriceBids, order_cb) {
           v.forEach(high => {
             var myOutPrice = high[0];
             var myOutCount = high[1];
-            if (myInCount < myOutCount) {
+            var usd_value = 500 / market_depth_set.get(currency + 'USDT').last;
+            if (myInCount < myOutCount && myInCount < usd_value) {
               // 开始计算利润
               // 我买入的花费
-              var myInCost = myInPrice * myInCount * (1.0 - 0.0015);
+              var inCurrency = key.substring(currency.length);
+              var in_usd_value = 1;
+              if (inCurrency != 'USDT') {
+                in_usd_value = market_depth_set.get(inCurrency + 'USDT').last;
+              }
+              var myInCost = myInPrice * myInCount * (1.0 - 0.0015) * in_usd_value;
               // 我卖出的收益
-              var myOutSum = myOutPrice * myInCount * (1.0 - 0.0015);
+              var outCurrency = k.substring(currency.length);
+              var out_usd_value = 1;
+              if (outCurrency != 'USDT') {
+                out_usd_value = market_depth_set.get(outCurrency + 'USDT').last;
+              }
+              var myOutSum = myOutPrice * myInCount * (1.0 - 0.0015) * out_usd_value;
               var profit = myOutSum - myInCost;
               if (profit > 0 && profit > max_profit) {
                 // 发现一组匹配
@@ -290,7 +311,11 @@ function queryBalance(coin, balance_cb) {
     if (coin) {
       balance_cb(result[coin]);
     } else {
-      balance_cb(result);
+      var balanceMap = new Map();
+      for (let v of currency_set) {
+        balanceMap.set(v, result[v]);
+      }
+      balance_cb(balanceMap);
     }
   })
 }
@@ -336,22 +361,98 @@ function chargeBalance(currency, market, amount, charge_cb) {
   })
 }
 
-function getCurrCoinCurrency(cb) {
-  //1. 获取最新价格
-  let option = {
-    url: 'https://api.coinmarketcap.com/v1/ticker/',
+function queryMarketStatis(market, statis_cb) {
+  let options = {
+    url: 'https://api.coinex.com/v1/market/ticker?market=' + market,
     method: 'get',
     json: true
   }
-  var currCNY = new Map();
-  request(option, (err, response, body) => {
-    for (let index in body) {
-      var obj = body[index];
-      if (currency_set.has(obj.symbol)) {
-        currCNY.set(obj.symbol, obj.price_usd);
+  request(options, (err, response, body) => {
+    if (err) {
+      logger.error("queryMarketStatis error ===>" + err);
+      statis_cb({});
+    } else {
+      statis_cb({
+        price: body.data.ticker.last
+      })
+    }
+  })
+}
+
+// function queryBasePrice(base_price_cb) {
+//   var basePriceMap = new Map();
+//   async.each(BASE_PRICE, function (market, callback) {
+//     queryMarketStatis(market, (statis_cb) => {
+//       basePriceMap.set(market, statis_cb.price);
+//       callback(null);
+//     })
+//   }, function (error) {
+//     if (error) {
+//       logger.error("queryBasePrice error ===> " + error);
+//     }
+//     base_price_cb(basePriceMap);
+//   })
+// }
+
+function balanceBalance(market_depth_set, balance_cb) {
+  async.waterfall([
+    function (callback) {
+      queryBalance(null, (balance_cb) => {
+        callback(null, balance_cb);
+      })
+    },
+    function (balanceMap, callback) {
+      var needCharge = [];
+      var max_balance = -1;
+      var max = null;
+      for (let [k, v] of balanceMap) {
+        var price = 1;
+        if (k != 'USDT') {
+          price = market_depth_set.get(k + 'USDT').last;
+        }
+        var tmp = v.available * price;
+        if (tmp > max_balance) {
+          max = {
+            name: k,
+            value: v
+          }
+        }
+        if (tmp < 500) {
+          needCharge.push(k);
+        }
+      }
+      callback(null, needCharge, max);
+    },
+    function (needCharge, max_balance, callback) {
+      if (needCharge.length > 0) {
+        async.map(needCharge, function (charge_name, cb) {
+          let charge_order = {};
+          if (charge_set.indexOf(charge_name + max_balance.name) >= 0) {
+            charge_order.market = charge_name + max_balance.name;
+            charge_order.type = 'buy';
+            charge_order.amount = 500;
+          } else if (charge_set.indexOf(max_balance.name + charge_name) >= 0) {
+            charge_order.market = max_balance.name + charge_name;
+            charge_order.type = 'sell';
+            var usd_charge_price = 1;
+            if (charge_name != 'USDT') {
+              usd_charge_price = market_depth_set.get(charge_name + 'USDT').last;
+            }
+            charge_order.amount = 500 / usd_charge_price;
+          }
+          console.log("charge_order ===> " + JSON.stringify(charge_order));
+          // placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
+          //   cb(null, order_cb);
+          // })
+        }, function (error, result) {
+          console.log(JSON.stringify(result));
+          callback(null, result);
+        })
+      } else {
+        callback(null, 'not need charge');
       }
     }
-    cb(currCNY);
+  ], function (error, results) {
+    console.log(JSON.stringify(results));
   })
-
 }
