@@ -19,12 +19,15 @@ currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
 var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
 
+setInterval(intervalFunc, 1000);
 
+function intervalFunc() {
+  deal((deal_cb) => {
+    console.log(JSON.stringify(deal_cb));
+    console.log(" ------ 本次处理结束 -----------");
+  })
+}
 
-deal((deal_cb) => {
-  console.log(JSON.stringify(deal_cb));
-  console.log(" ------ 本次处理结束 -----------");
-})
 
 function deal(deal_cb) {
   async.mapSeries(policy_arr, function (policy, cb) {
@@ -42,7 +45,7 @@ function dealMarket(policy, deal_cb) {
     // 获取行情
     function (callback) {
       queryAllMarket((market_depth_set) => {
-        console.log("获取行情 ===> " + JSON.stringify(strMapToObj(market_depth_set)));
+        //console.log("获取行情 ===> " + JSON.stringify(strMapToObj(market_depth_set)));
         callback(null, market_depth_set);
       })
     },
