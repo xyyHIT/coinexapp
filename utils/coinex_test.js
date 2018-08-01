@@ -439,7 +439,7 @@ function balanceBalance(market_depth_set, balance_cb) {
             charge_order.type = 'sell';
             var usd_charge_price = 1;
             if (charge_name != 'USDT') {
-              usd_charge_price = market_depth_set.get(charge_name + 'USDT').last;
+              usd_charge_price = market_depth_set.get(max_balance.name + 'USDT').last;
             }
             charge_order.amount = 500 / usd_charge_price;
           }
