@@ -458,5 +458,6 @@ function balanceBalance(market_depth_set, balance_cb) {
     }
   ], function (error, results) {
     console.log(JSON.stringify(results));
+    balance_cb(results);
   })
 }
