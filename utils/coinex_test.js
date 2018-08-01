@@ -171,12 +171,14 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
                   myIn: {
                     market: key,
                     amount: (myInCount * myInPrice).toFixed(8),
-                    price: myInPrice
+                    price: myInPrice,
+                    usdt_price: in_usd_value
                   },
                   myOut: {
                     market: k,
                     amount: myInCount,
-                    price: myOutPrice
+                    price: myOutPrice,
+                    usdt_price: out_usd_value
                   }
                 }
               }
