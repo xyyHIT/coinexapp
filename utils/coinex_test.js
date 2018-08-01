@@ -14,6 +14,7 @@ var policy_arr = [{
   market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
   depth: 5
 }]
+let MAX_USD = 200;
 var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 
@@ -147,7 +148,7 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
           v.forEach(high => {
             var myOutPrice = high[0];
             var myOutCount = high[1];
-            var usd_value = 500 / market_depth_set.get(currency + 'USDT').last;
+            var usd_value = MAX_USD / market_depth_set.get(currency + 'USDT').last;
             if (myInCount < myOutCount && myInCount < usd_value) {
               // 开始计算利润
               // 我买入的花费
@@ -416,7 +417,7 @@ function balanceBalance(market_depth_set, balance_cb) {
           }
           max_balance = tmp;
         }
-        if (tmp < 500) {
+        if (tmp < MAX_USD) {
           needCharge.push(k);
         }
       }
@@ -431,7 +432,7 @@ function balanceBalance(market_depth_set, balance_cb) {
           if (charge_set.indexOf(charge_name + max_balance.name) >= 0) {
             charge_order.market = charge_name + max_balance.name;
             charge_order.type = 'buy';
-            charge_order.amount = 500;
+            charge_order.amount = MAX_USD;
           } else if (charge_set.indexOf(max_balance.name + charge_name) >= 0) {
             charge_order.market = max_balance.name + charge_name;
             charge_order.type = 'sell';
@@ -439,7 +440,7 @@ function balanceBalance(market_depth_set, balance_cb) {
             if (charge_name != 'USDT') {
               usd_charge_price = market_depth_set.get(max_balance.name + 'USDT').last;
             }
-            charge_order.amount = (500 / usd_charge_price).toFixed(8);
+            charge_order.amount = (MAX_USD / usd_charge_price).toFixed(8);
           }
           console.log("charge_order ===> " + JSON.stringify(charge_order));
           placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
