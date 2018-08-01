@@ -16,7 +16,8 @@ currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
 var charge_set = ["BTCBCH", "BTCUSDT", "BCHUSDT", "ETHBTC", "ETHBCH", "ETHUSDT"];
 
 deal((deal_cb) => {
-  console.log(" ------- 处理结束 ------");
+  console.log(JSON.stringify(deal_cb));
+  console.log(" ------ 本次处理结束 -----------");
 })
 
 function deal(deal_cb) {
@@ -46,7 +47,7 @@ function deal(deal_cb) {
       })
     }
   ], function (error, result) {
-    console.log(JSON.stringify(result));
+    deal_cb(result);
   })
 }
 
