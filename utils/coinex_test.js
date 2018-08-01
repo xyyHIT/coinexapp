@@ -9,6 +9,10 @@ var policy_arr = [{
   currency: "BTC",
   market: ["BTCUSDT", "BTCBCH"],
   depth: 5
+}, {
+  currency: "ETH",
+  market: ["ETHUSDT", "ETHBCH", "ETHBTC"],
+  depth: 5
 }]
 var currency_set = new Set();
 currency_set.add("BTC").add("BCH").add("ETH").add("USDT");
@@ -29,12 +33,6 @@ function deal(deal_cb) {
         callback(null, market_depth_set);
       })
     },
-    // 平衡余额
-    function (market_depth_set, callback) {
-      balanceBalance(market_depth_set, (balance_cb) => {
-        callback(null, market_depth_set);
-      })
-    },
     // 处理
     function (market_depth_set, callback) {
       async.map(policy_arr, function (policy, cb) {
@@ -42,7 +40,6 @@ function deal(deal_cb) {
           cb(null, deal_market_cb);
         })
       }, function (err, done) {
-        console.log(JSON.stringify(done));
         callback(null, done);
       })
     }
@@ -54,7 +51,13 @@ function deal(deal_cb) {
 
 function dealMarket(market_depth_set, policy, deal_cb) {
   async.waterfall([
+    // 平衡余额
     function (callback) {
+      balanceBalance(market_depth_set, (balance_cb) => {
+        callback(null, balance_cb);
+      })
+    },
+    function (balance, callback) {
       var lowPriceTakes = new Map();
       var highPriceBids = new Map();
       policy.market.forEach(market => {
@@ -169,7 +172,7 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
                 order = {
                   myIn: {
                     market: key,
-                    amount: myInCount * myInPrice,
+                    amount: (myInCount * myInPrice).toFixed(8),
                     price: myInPrice
                   },
                   myOut: {
