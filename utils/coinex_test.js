@@ -72,7 +72,6 @@ function dealMarket(market_depth_set, policy, deal_cb) {
       });
       // 获取合适订单
       findOrder(market_depth_set, policy.currency, lowPriceTakes, highPriceBids, (order_cb) => {
-        console.log("order_cb ===> " + JSON.stringify(order_cb));
         callback(null, order_cb);
       })
     },
@@ -175,7 +174,7 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
                 order = {
                   myIn: {
                     market: key,
-                    amount: myInCount,
+                    amount: myInCount * myInPrice,
                     price: myInPrice
                   },
                   myOut: {
@@ -227,7 +226,6 @@ function placeLimitOrder(order, type, callback) {
     type: type
   }
   signature.signature(postBody, true, (cb) => {
-    //logger.info(type + " signature ===>" + JSON.stringify(cb));
     let option = {
       url: 'https://api.coinex.com/v1/order/limit',
       method: 'post',
@@ -442,13 +440,12 @@ function balanceBalance(market_depth_set, balance_cb) {
             if (charge_name != 'USDT') {
               usd_charge_price = market_depth_set.get(max_balance.name + 'USDT').last;
             }
-            charge_order.amount = 500 / usd_charge_price;
+            charge_order.amount = (500 / usd_charge_price).toFixed(8);
           }
           console.log("charge_order ===> " + JSON.stringify(charge_order));
           placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
             cb(null, order_cb);
           })
-          cb(null, charge_order);
         }, function (error, result) {
           callback(null, result);
         })
