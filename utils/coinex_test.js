@@ -448,8 +448,8 @@ function balanceBalance(market_depth_set, balance_cb) {
           // placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
           //   cb(null, order_cb);
           // })
+          cb(null, charge_order);
         }, function (error, result) {
-          console.log(JSON.stringify(result));
           callback(null, result);
         })
       } else {
