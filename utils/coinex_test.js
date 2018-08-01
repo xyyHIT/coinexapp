@@ -25,6 +25,17 @@ deal((deal_cb) => {
 })
 
 function deal(deal_cb) {
+  async.mapSeries(policy_arr, function (policy, cb) {
+    dealMarket(policy, (deal_market_cb) => {
+      cb(null, deal_market_cb);
+    })
+  }, function (err, done) {
+    deal_cb(null, done);
+  })
+}
+
+
+function dealMarket(policy, deal_cb) {
   async.waterfall([
     // 获取行情
     function (callback) {
@@ -33,31 +44,13 @@ function deal(deal_cb) {
         callback(null, market_depth_set);
       })
     },
-    // 处理
-    function (market_depth_set, callback) {
-      async.map(policy_arr, function (policy, cb) {
-        dealMarket(market_depth_set, policy, (deal_market_cb) => {
-          cb(null, deal_market_cb);
-        })
-      }, function (err, done) {
-        callback(null, done);
-      })
-    }
-  ], function (error, result) {
-    deal_cb(result);
-  })
-}
-
-
-function dealMarket(market_depth_set, policy, deal_cb) {
-  async.waterfall([
     // 平衡余额
-    function (callback) {
+    function (market_depth_set, callback) {
       balanceBalance(market_depth_set, (balance_cb) => {
-        callback(null, balance_cb);
+        callback(null, market_depth_set);
       })
     },
-    function (balance, callback) {
+    function (market_depth_set, callback) {
       var lowPriceTakes = new Map();
       var highPriceBids = new Map();
       policy.market.forEach(market => {
