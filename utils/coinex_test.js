@@ -77,11 +77,11 @@ function dealMarket(market_depth_set, policy, deal_cb) {
       })
     },
     // 下单
-    // function (find_order, callback) {
-    //   limitOrder(find_order, (order_cb) => {
-    //     callback(null, order_cb);
-    //   })
-    // }
+    function (find_order, callback) {
+      limitOrder(find_order, (order_cb) => {
+        callback(null, order_cb);
+      })
+    }
   ], function (error, results) {
     if (error) {
       deal_cb(error);
@@ -445,9 +445,9 @@ function balanceBalance(market_depth_set, balance_cb) {
             charge_order.amount = 500 / usd_charge_price;
           }
           console.log("charge_order ===> " + JSON.stringify(charge_order));
-          // placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
-          //   cb(null, order_cb);
-          // })
+          placeMarketOrder(charge_order, charge_order.type, (order_cb) => {
+            cb(null, order_cb);
+          })
           cb(null, charge_order);
         }, function (error, result) {
           callback(null, result);
