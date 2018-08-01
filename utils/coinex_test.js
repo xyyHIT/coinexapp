@@ -24,7 +24,7 @@ function deal(deal_cb) {
     // 获取行情
     function (callback) {
       queryAllMarket((market_depth_set) => {
-        console.log("获取行情 ===> " + JSON.stringify(market_depth_set));
+        console.log("获取行情 ===> " + JSON.stringify(strMapToObj(market_depth_set)));
         callback(null, market_depth_set);
       })
     },
@@ -451,4 +451,12 @@ function balanceBalance(market_depth_set, balance_cb) {
     console.log(JSON.stringify(results));
     balance_cb(results);
   })
+}
+
+function strMapToObj(strMap) {
+  let obj = Object.create(null);
+  for (let [k, v] of strMap) {
+    obj[k] = v;
+  }
+  return obj;
 }
