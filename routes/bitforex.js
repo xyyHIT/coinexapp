@@ -121,7 +121,7 @@ router.post('/placeOrder', (req, res, next) => {
     tradeType: 1 //买卖类型：0 卖出 1 购买
   }
   var result = '';
-  signature.bitforex(settings.zbg[user].secret_key, '/api/v1/trade/placeOrder', postBody, true, (cb) => {
+  signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', postBody, true, (cb) => {
     let post_options = {
       url: 'https://api.bitforex.com' + cb.signature,
       method: 'post',
@@ -140,7 +140,7 @@ router.post('/placeOrder', (req, res, next) => {
           let nowTime = Date.now();
           postBody.type = 0;
           user = user == settings.bitforex.length - 1 ? 0 : parseInt(user) + 1;
-          signature.bitforex(settings.zbg[user].secret_key, '/api/v1/trade/placeOrder', postBody, true, (sign) => {
+          signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', postBody, true, (sign) => {
             let buy_options = {
               url: 'https://api.bitforex.com' + sign.signature,
               method: 'post',
