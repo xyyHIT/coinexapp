@@ -70,7 +70,6 @@ function queryBalance(user, balance_cb) {
       json: true
     }
     request(post_options, (err, response, body) => {
-      console.log(JSON.stringify(body));
       var balance = [];
       for (let index in body.data) {
         var obj = body.data[index];

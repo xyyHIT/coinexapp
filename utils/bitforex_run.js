@@ -79,7 +79,7 @@ function getMatchPrice(price_cb) {
       var min_sell = body.data.sell;
       var max_buy = body.data.buy;
       var sub = min_sell - max_buy;
-      if (sub > 0) {
+      if (sub > sub > 0.000002) {
         var price = max_buy + parseFloat((sub / 2).toFixed(4));
         console.log(min_sell + " " + price + " " + max_buy);
         price_cb({
