@@ -80,7 +80,7 @@ function getMatchPrice(price_cb) {
       var max_buy = body.data.buy;
       var sub = min_sell - max_buy;
       if (sub > 0) {
-        var price = min_sell + parseFloat((sub / 2).toFixed(4));
+        var price = max_buy + parseFloat((sub / 2).toFixed(4));
         console.log(min_sell + " " + price + " " + max_buy);
         price_cb({
           success: true,
@@ -98,54 +98,57 @@ function getMatchPrice(price_cb) {
 function dealOrder(user, price, deal_order_cb) {
   let currTime = Date.now();
   let deal_count = amount * 0.99;
-  let post_sell = {
+  // 先挂买单
+  let post_buy = {
     accessKey: settings.bitforex[user].access_id,
-    amount: deal_count, //下单数量 
+    amount: (deal_count * price).toFixed(4), //下单数量 
     nonce: currTime,
     price: price,
     symbol: 'coin-usdt-' + market,
-    tradeType: 2 //买卖类型：1、买入，2、卖出
+    tradeType: 1 //买卖类型：1、买入，2、卖出
   }
   var result = '';
-  signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_sell, true, (cb) => {
+  signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_buy, true, (cb) => {
     let post_options = {
       url: 'https://api.bitforex.com' + cb.signature,
       method: 'post',
       json: true
     }
-    request(post_options, (err, response, body) => {
+    request(post_options, (err, response, buy_body) => {
+      console.log("buy_body ===> " + JSON.stringify(buy_body));
       if (err) {
-        res.json({
+        deal_order_cb({
           success: false,
           msg: "[委托买入失败]" + err
         });
       } else {
-        if (body.success) {
-          result += "[买入" + body.orderId + "]";
-          // 如果成功，马上买入
-          let post_buy = {
+        if (buy_body.success) {
+          result += "[买入" + buy_body.orderId + "]";
+          // 如果成功，马上卖出
+          let post_sell = {
             accessKey: settings.bitforex[user].access_id,
-            amount: deal_count / price, //下单数量 
+            amount: deal_count, //下单数量 
             nonce: currTime,
             price: price,
             symbol: 'coin-usdt-' + market,
-            tradeType: 1 //1、买入，2、卖出
+            tradeType: 2 //1、买入，2、卖出
           }
           user = user == settings.bitforex.length - 1 ? 0 : parseInt(user) + 1;
-          signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_buy, true, (sign) => {
-            let buy_options = {
+          signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_sell, true, (sign) => {
+            let sell_options = {
               url: 'https://api.bitforex.com' + sign.signature,
               method: 'post',
               json: true
             }
-            request(buy_options, (error, buy_response, buy_body) => {
+            request(sell_options, (error, buy_response, sell_body) => {
+              console.log("sell_body ===> " + JSON.stringify(sell_body));
               if (error) {
                 deal_order_cb({
                   success: false,
                   msg: result + " [委托卖出失败]" + error
                 });
               } else {
-                if (buy_body.success) {
+                if (sell_body.success) {
                   deal_order_cb({
                     success: true,
                     msg: result + " [卖出" + buy_body.orderId + "] "
