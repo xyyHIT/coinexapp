@@ -123,8 +123,9 @@ function dealOrder(user, price, deal_order_cb) {
         });
       } else {
         if (buy_body.success) {
-          result += "[买入" + buy_body.orderId + "]";
-          // 如果成功，马上卖出
+          result += "[买入" + buy_body.data.orderId + "]";
+          // 如果成功，马上换另一个用户挂卖单
+          user = user == settings.bitforex.length - 1 ? 0 : parseInt(user) + 1;
           let post_sell = {
             accessKey: settings.bitforex[user].access_id,
             amount: deal_count, //下单数量 
@@ -133,7 +134,6 @@ function dealOrder(user, price, deal_order_cb) {
             symbol: 'coin-usdt-' + market,
             tradeType: 2 //1、买入，2、卖出
           }
-          user = user == settings.bitforex.length - 1 ? 0 : parseInt(user) + 1;
           signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_sell, true, (sign) => {
             let sell_options = {
               url: 'https://api.bitforex.com' + sign.signature,
