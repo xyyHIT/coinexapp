@@ -134,7 +134,7 @@ router.post('/placeOrder', (req, res, next) => {
         symbol: market,
         tradeType: 1 //买卖类型：1、买入，2、卖出
       }
-      var result = '';
+      var result = '[price=' + price + "]";
       signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_buy, true, (cb) => {
         let post_options = {
           url: 'https://api.bitforex.com' + cb.signature,
