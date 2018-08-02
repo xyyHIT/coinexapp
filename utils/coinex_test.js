@@ -184,7 +184,7 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
               }
               var myOutSum = myOutPrice * myInCount * out_usd_value;
               var profit = (myOutSum - myInCost) / myInCost;
-              if (profit > 0.005 && profit > max_profit) {
+              if (profit > 0.003 && profit > max_profit) {
                 // 发现一组匹配
                 max_profit = profit;
                 order = {
