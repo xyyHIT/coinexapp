@@ -104,7 +104,7 @@ function dealOrder(user, price, deal_order_cb) {
     nonce: currTime,
     price: price,
     symbol: 'coin-usdt-' + market,
-    tradeType: 0 //买卖类型：0 卖出 1 购买
+    tradeType: 2 //买卖类型：1、买入，2、卖出
   }
   var result = '';
   signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_sell, true, (cb) => {
@@ -129,7 +129,7 @@ function dealOrder(user, price, deal_order_cb) {
             nonce: currTime,
             price: price,
             symbol: 'coin-usdt-' + market,
-            tradeType: 1 //买卖类型：0 卖出 1 购买
+            tradeType: 1 //1、买入，2、卖出
           }
           user = user == settings.bitforex.length - 1 ? 0 : parseInt(user) + 1;
           signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/trade/placeOrder?', post_buy, true, (sign) => {
