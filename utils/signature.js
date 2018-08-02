@@ -74,7 +74,6 @@ let bitforex = function (secret_key, path, params, isJSON, cb) {
   } else {
     str = params;
   }
-  console.log("str ===> " + str);
   const hash = crypto.createHmac('sha256', secret_key)
     .update(str)
     .digest('hex');

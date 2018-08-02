@@ -101,7 +101,7 @@ function dealOrder(user, price, deal_order_cb) {
   // 先挂买单
   let post_buy = {
     accessKey: settings.bitforex[user].access_id,
-    amount: (deal_count * price).toFixed(4), //下单数量 
+    amount: deal_count, //下单数量 
     nonce: currTime,
     price: price,
     symbol: 'coin-usdt-' + market,
@@ -165,7 +165,7 @@ function dealOrder(user, price, deal_order_cb) {
         } else {
           deal_order_cb({
             success: false,
-            msg: body
+            msg: buy_body
           })
         }
       }
