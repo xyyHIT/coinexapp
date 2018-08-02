@@ -76,6 +76,7 @@ function dealMarket(policy, deal_cb) {
         limitOrder(find_order, (order_cb) => {
           if (order_cb.success) {
             logger.info(JSON.stringify(find_order));
+            logger.info(JSON.stringify(find_order.done));
             callback(null, order_cb);
           } else {
             callback(null, order_cb);
