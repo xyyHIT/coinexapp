@@ -51,7 +51,7 @@ router.get('/myBalance', (req, res, next) => {
       queryBalance(user, (balance_cb) => {
         setTimeout(function () {
           callback(null, balance_cb);
-        }, 5000);
+        }, 10000);
       })
     },
     function (error, results) {
