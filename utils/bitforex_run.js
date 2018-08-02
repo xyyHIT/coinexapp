@@ -151,7 +151,7 @@ function dealOrder(user, price, deal_order_cb) {
                 if (sell_body.success) {
                   deal_order_cb({
                     success: true,
-                    msg: result + " [卖出" + buy_body.orderId + "] "
+                    msg: result + " [卖出" + buy_body.data.orderId + "] "
                   });
                 } else {
                   deal_order_cb({
