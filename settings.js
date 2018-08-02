@@ -5,6 +5,15 @@ module.exports = {
     // access_id: '6A53206AC2D04AA2BBC889F750FD67B8',
     // secret_key: 'FFA46235D8A74E50A55613C59680A3D73153238727BE575D',
   },
+  coinall: [{
+      access_id: '8df72a1e-c076-4b8d-932e-0e77372c69df',
+      secret_key: '78B458E222D65CE77CB24C834C407863'
+    },
+    {
+      access_id: '4ce0edd6-b86c-4648-a108-3c9a68324fb3',
+      secret_key: '64010D9E56EC6D52A09DA42032AD42F8'
+    }
+  ],
   log4js: {
     appenders: {
       out: {
@@ -52,7 +61,23 @@ module.exports = {
     public_key: '-----BEGIN PUBLIC KEY-----\n' +
       'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCyN77S2w3XOO6P8Du90xkf05QRgsFydhuKovuwG7TxBncf3DYsSSN54xuJZgrTq7xtXhw4LK7SeLilQkBwYdrKwZgM7963b/T4IyN0oQGW5ZsqvcFyTQCmktDoZhC55zminbudQZPZ4gjWz+vpUIG1xj2i4j0+BZlSd8qkUANh7wIDAQAB\n' +
       '-----END PUBLIC KEY-----'
-  }]
+  }],
+
+  bitforex: [{
+      access_id: '7194b4eb6aca41d38e6fe7cb4d10d5e4',
+      secret_key: '2ac743338eadd99df83f96b8ed374732'
+    },
+    {
+      access_id: 'f99f201636c8672e99bdd9566f8474ec',
+      secret_key: 'c260030290d81173df6435ff6c897dca'
+    },
+    // {
+    //   access_id: 'cde5b0f577ed87ec2f528b83f262bac9',
+    //   secret_key: 'cc53696dc644a304ed3561fa2c2afe3c'
+    // }
+
+  ]
+
 
 
 

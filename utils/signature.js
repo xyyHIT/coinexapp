@@ -45,9 +45,48 @@ let asiaex = function (param, public_key, cb) {
   });
 }
 
+let coinall = function (currTime, method, request_path, secret_key, params, isJSON, cb) {
+  var str = currTime + method.toUpperCase() + request_path;
+  if (isJSON) {
+    str += JSON.stringify(params);
+  } else {
+    //string
+    str += params;
+    //str.replace(new RegExp('=','g'),'');
+    //str.replace(new RegExp('&','g'),'');
+  }
+  console.log("str ===> " + str);
+  const hash = crypto.createHmac('sha256', secret_key)
+    .update(str)
+    .digest('base64');
+  cb({
+    signature: hash
+  });
+}
+
+let bitforex = function (secret_key, path, params, isJSON, cb) {
+  var str = path;
+  if (isJSON) {
+    for (let p in params) {
+      str += p + '=' + params[p] + '&';
+    }
+    str = str.substring(0, str.length - 1);
+  } else {
+    str = params;
+  }
+  console.log("str ===> " + str);
+  const hash = crypto.createHmac('sha256', secret_key)
+    .update(str)
+    .digest('hex');
+  cb({
+    signature: str + '&signData=' + hash
+  });
+}
 
 module.exports = {
   signature,
   zbg,
-  asiaex
+  asiaex,
+  coinall,
+  bitforex
 }
