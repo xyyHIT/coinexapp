@@ -49,9 +49,7 @@ router.get('/fund/mainAccount', (req, res, next) => {
 router.get('/myBalance', (req, res, next) => {
   async.mapSeries(settings.bitforex, function (user, callback) {
       queryBalance(user, (balance_cb) => {
-        setTimeout(function () {
-          callback(null, balance_cb);
-        }, 10000);
+        callback(null, balance_cb);
       })
     },
     function (error, results) {
@@ -62,10 +60,10 @@ router.get('/myBalance', (req, res, next) => {
 function queryBalance(user, balance_cb) {
   let currTime = Date.now();
   var post_data = {
-    accessKey: settings.bitforex[0].access_id,
+    accessKey: settings.bitforex[user].access_id,
     nonce: currTime
   }
-  signature.bitforex(settings.bitforex[0].secret_key, '/api/v1/fund/allAccount?', post_data, true, (cb) => {
+  signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/fund/allAccount?', post_data, true, (cb) => {
     let post_options = {
       url: 'https://api.bitforex.com' + cb.signature,
       method: 'post',
