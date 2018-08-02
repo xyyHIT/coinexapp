@@ -60,10 +60,10 @@ router.get('/myBalance', (req, res, next) => {
 function queryBalance(user, balance_cb) {
   let currTime = Date.now();
   var post_data = {
-    accessKey: settings.bitforex[user].access_id,
+    accessKey: user.access_id,
     nonce: currTime
   }
-  signature.bitforex(settings.bitforex[user].secret_key, '/api/v1/fund/allAccount?', post_data, true, (cb) => {
+  signature.bitforex(user.secret_key, '/api/v1/fund/allAccount?', post_data, true, (cb) => {
     let post_options = {
       url: 'https://api.bitforex.com' + cb.signature,
       method: 'post',
