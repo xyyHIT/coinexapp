@@ -175,16 +175,16 @@ function findOrder(market_depth_set, currency, lowPriceTakes, highPriceBids, ord
             if (myInCount < myOutCount && myInCount < usd_value) {
               // 开始计算利润
               // 我买入的花费
-              var myInCost = myInPrice * myInCount * (1.0 - 0.005) * in_usd_value;
+              var myInCost = myInPrice * myInCount * in_usd_value;
               // 我卖出的收益
               var outCurrency = k.substring(currency.length);
               var out_usd_value = 1;
               if (outCurrency != 'USDT') {
                 out_usd_value = market_depth_set.get(outCurrency + 'USDT').last;
               }
-              var myOutSum = myOutPrice * myInCount * (1.0 - 0.005) * out_usd_value;
-              var profit = myOutSum - myInCost;
-              if (profit > 0 && profit > max_profit) {
+              var myOutSum = myOutPrice * myInCount * out_usd_value;
+              var profit = (myOutSum - myInCost) / myInCost;
+              if (profit > 0.005 && profit > max_profit) {
                 // 发现一组匹配
                 max_profit = profit;
                 order = {
