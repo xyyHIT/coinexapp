@@ -170,7 +170,7 @@ router.post('/placeOrder', (req, res, next) => {
                     callback(result + " [委托卖出失败]" + error, null);
                   } else {
                     if (sell_body.success) {
-                      callback(null, result + " [卖出" + buy_body.data.orderId + "] ");
+                      callback(null, result + " [卖出" + sell_body.data.orderId + "] ");
                     } else {
                       callback(result + " [委托卖出失败]", null);
                     }

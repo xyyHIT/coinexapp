@@ -12,6 +12,7 @@ var zbg = require('./routes/zbg');
 var asiaex = require('./routes/asiaex');
 var coinall = require('./routes/coinall');
 var bitforex = require('./routes/bitforex');
+var digifinex = require('./routes/digifinex');
 
 var app = express();
 
@@ -36,6 +37,7 @@ app.use('/zbg', zbg);
 app.use('/asiaex', asiaex);
 app.use('/coinall', coinall);
 app.use('/bitforex', bitforex);
+app.use('/digifinex', digifinex);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

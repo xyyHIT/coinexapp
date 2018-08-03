@@ -82,10 +82,23 @@ let bitforex = function (secret_key, path, params, isJSON, cb) {
   });
 }
 
+let digifinex = function (params, cb) {
+  let keys = Object.keys(params).sort(),
+    arr = [];
+  keys.forEach(function (key) {
+    arr.push(params[key]);
+  });
+  let sign = md5(arr.join(''));
+  cb({
+    signature: sign
+  })
+}
+
 module.exports = {
   signature,
   zbg,
   asiaex,
   coinall,
-  bitforex
+  bitforex,
+  digifinex
 }
