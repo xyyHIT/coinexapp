@@ -30,7 +30,35 @@ router.get('/ticker', (req, res, next) => {
       }
     })
   })
+})
 
+router.get('/limitOrder', (req, res, next) => {
+  let user = req.query.user;
+  let price = req.query.price;
+  let amount = req.query.amount;
+  let type = req.query.type;
+  let currTime = parseInt(Date.now() / 1000);
+  let post_sell = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    amount: amount, //下单数量 
+    timestamp: currTime,
+    price: price,
+    symbol: 'usdt_btc',
+    tradeType: type
+  }
+  signature.digifinex(post_sell, (sign) => {
+    post_sell.sign = sign.signature;
+    let sell_options = {
+      url: 'https://openapi.digifinex.com/v2/trade',
+      method: 'post',
+      json: true,
+      form: post_sell
+    }
+    request(sell_options, (error, buy_response, sell_body) => {
+      res.json(sell_body);
+    })
+  })
 })
 
 router.get('/myBalance', (req, res, next) => {
