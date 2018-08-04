@@ -12,14 +12,14 @@ console.log(args);
 var user = parseInt(args[0]);
 
 if (user) {
-  setInterval(intervalFunc, 1000 * 60);
+  setInterval(intervalFunc, 1000 * 60 * 2);
 } else {
   console.log("参数错误");
 }
 
 
 function intervalFunc() {
-  logger.info("开始运行 ===> " + this.user);
+  logger.info("开始运行 ===> " + user);
   dealOrder((cb) => {
     logger.info("本次运行结束 ===> " + JSON.stringify(cb));
   })
