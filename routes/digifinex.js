@@ -65,12 +65,12 @@ router.get('/limitOrder', (req, res, next) => {
   let type = req.query.type;
   let currTime = parseInt(Date.now() / 1000);
   let post_sell = {
+    amount: amount, //下单数量 
     apiKey: settings.digifinex[user].access_id,
     apiSecret: settings.digifinex[user].secret_key,
-    amount: amount, //下单数量 
-    timestamp: currTime,
     price: price,
     symbol: 'usdt_btc',
+    timestamp: currTime,
     tradeType: type
   }
   signature.digifinex(post_sell, (sign) => {
