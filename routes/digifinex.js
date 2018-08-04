@@ -71,8 +71,9 @@ router.get('/limitOrder', (req, res, next) => {
     price: price,
     symbol: 'usdt_btc',
     timestamp: currTime,
-    trade: type
+    type: type
   }
+
   signature.digifinex(post_sell, (sign) => {
     post_sell.sign = sign.signature;
     let sell_options = {
@@ -81,6 +82,7 @@ router.get('/limitOrder', (req, res, next) => {
       json: true,
       form: post_sell
     }
+    console.log(JSON.stringify(post_sell));
     request(sell_options, (error, buy_response, sell_body) => {
       res.json(sell_body);
     })
