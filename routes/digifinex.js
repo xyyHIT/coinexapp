@@ -168,7 +168,7 @@ router.post('/placeOrder', (req, res, next) => {
           if (err) {
             callback("[委托买入失败]" + err, null);
           } else {
-            if (buy_body.code == 0) {
+            if (buy_body.code == 20011) {
               result += "[买入" + buy_body.order_id + "]";
               // 如果成功，马上换另一个用户挂卖单
               user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
@@ -276,7 +276,7 @@ function getMatchPrice(user, market, price_cb) {
             var max_buy = body.bids[body.bids.length - 1][0];
             var sub = min_sell - max_buy;
             if (sub > 2 * Math.pow(10, (-1) * paire[1])) {
-              var price = max_buy + parseFloat((sub / 2).toFixed(paire[1]));
+              var price = parseFloat(max_buy + sub / 2).toFixed(parseInt(paire[1]));
               console.log(min_sell + " " + price + " " + max_buy);
               price_cb({
                 success: true,
