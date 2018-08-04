@@ -6,7 +6,7 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger('balance');
 var async = require('async');
 
-setInterval(intervalFunc, 1000 * 5 * 60);
+setInterval(intervalFunc, 1000 * 60);
 
 function intervalFunc() {
   dealOrder((cb) => {
@@ -171,7 +171,7 @@ function getMatchPrice(price_cb) {
             var sub = min_sell - max_buy;
             if (sub > 2 * Math.pow(10, (-1) * paire[1])) {
               var price = parseFloat(max_buy + sub / 2).toFixed(parseInt(paire[1]));
-              console.log(min_sell + " " + price + " " + max_buy);
+              logger.info(min_sell + " " + price + " " + max_buy);
               price_cb({
                 success: true,
                 price: price
