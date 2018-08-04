@@ -5,7 +5,7 @@ var signature = require('../utils/signature');
 var settings = require('../settings');
 var async = require('async');
 
-var currency_arr = ["usdt", "btc", "bch", "eth"];
+var currency_arr = ["usdt", "btc", "eos"];
 
 router.get('/ticker', (req, res, next) => {
   var currTime = Date.now() / 1000;
@@ -130,7 +130,7 @@ function queryBalance(user, balance_cb) {
 router.post('/placeOrder', (req, res, next) => {
   var market = req.body.market;
   var user = req.body.user;
-  let deal_count = (req.body.amount * 0.99).toFixed(4);
+  let deal_count = req.body.amount;
   var result = '';
   async.waterfall([
     // 获取合适价格
