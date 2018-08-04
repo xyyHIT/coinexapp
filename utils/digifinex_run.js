@@ -6,7 +6,17 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger('balance');
 var async = require('async');
 
-setInterval(intervalFunc, 1000 * 60);
+var args = process.argv.splice(2);
+console.log(args);
+
+var user = parseInt(args[0]);
+
+if (user) {
+  setInterval(intervalFunc, 1000 * 60);
+} else {
+  console.log("参数错误");
+}
+
 
 function intervalFunc() {
   dealOrder((cb) => {
@@ -16,7 +26,6 @@ function intervalFunc() {
 
 let market = 'usdt_btc';
 let deal_count = 0.03;
-var user = 0;
 
 function dealOrder(deal_cb) {
   async.waterfall([
