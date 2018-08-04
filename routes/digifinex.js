@@ -130,11 +130,14 @@ function queryBalance(user, balance_cb) {
 router.post('/placeOrder', (req, res, next) => {
   var market = req.body.market;
   var user = req.body.user;
+  let deal_count = (req.body.amount * 0.99).toFixed(4);
+  var result = '';
   async.waterfall([
     // 获取合适价格
     function (callback) {
       getMatchPrice(user, market, (price) => {
         if (price.success) {
+          result = '[price=' + price.price + "]";
           callback(null, price.price);
         } else {
           callback('未匹配到合适价格');
@@ -143,7 +146,6 @@ router.post('/placeOrder', (req, res, next) => {
     },
     function (price, callback) {
       let currTime = parseInt(Date.now() / 1000);
-      let deal_count = (req.body.amount * 0.99).toFixed(4);
       // 先挂买单
       let post_buy = {
         amount: deal_count, //下单数量 
@@ -154,7 +156,6 @@ router.post('/placeOrder', (req, res, next) => {
         timestamp: currTime,
         type: 'buy'
       }
-      var result = '[price=' + price + "]";
       signature.digifinex(post_buy, (cb) => {
         post_buy.sign = cb.signature;
         let post_options = {
@@ -171,42 +172,45 @@ router.post('/placeOrder', (req, res, next) => {
           } else {
             if (buy_body.code == 0) {
               result += "[买入" + buy_body.order_id + "]";
-              // 如果成功，马上换另一个用户挂卖单
-              user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
-              var nowTime = Date.now() / 1000;
-              let post_sell = {
-                apiKey: settings.digifinex[user].access_id,
-                apiSecret: settings.digifinex[user].secret_key,
-                amount: deal_count, //下单数量 
-                timestamp: nowTime,
-                price: price,
-                symbol: market,
-                tradeType: 'sell'
-              }
-              signature.digifinex(post_sell, (sign) => {
-                post_sell.sign = sign.signature;
-                let sell_options = {
-                  url: 'https://openapi.digifinex.com/v2/trade',
-                  method: 'post',
-                  json: true,
-                  form: post_sell
-                }
-                console.log("post_sell ===> " + JSON.stringify(post_sell));
-                request(sell_options, (error, buy_response, sell_body) => {
-                  console.log("sell_body ===> " + JSON.stringify(sell_body));
-                  if (error) {
-                    callback(result + " [委托卖出失败]" + error, null);
-                  } else {
-                    if (sell_body.code == 0) {
-                      callback(null, result + " [卖出" + sell_body.order_id + "] ");
-                    } else {
-                      callback(result + " [委托卖出失败]", null);
-                    }
-                  }
-                })
-              })
+              callback(null, price);
             } else {
               callback(buy_body, null);
+            }
+          }
+        })
+      })
+    },
+    function (price, callback) {
+      // 如果成功，马上换另一个用户挂卖单
+      user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
+      var nowTime = parseInt(Date.now() / 1000);
+      let post_sell = {
+        amount: deal_count, //下单数量 
+        apiKey: settings.digifinex[user].access_id,
+        apiSecret: settings.digifinex[user].secret_key,
+        price: price,
+        symbol: market,
+        timestamp: nowTime,
+        type: 'sell'
+      }
+      signature.digifinex(post_sell, (sign) => {
+        post_sell.sign = sign.signature;
+        let sell_options = {
+          url: 'https://openapi.digifinex.com/v2/trade',
+          method: 'post',
+          json: true,
+          form: post_sell
+        }
+        console.log("post_sell ===> " + JSON.stringify(post_sell));
+        request(sell_options, (error, buy_response, sell_body) => {
+          console.log("sell_body ===> " + JSON.stringify(sell_body));
+          if (error) {
+            callback(result + " [委托卖出失败]" + error, null);
+          } else {
+            if (sell_body.code == 0) {
+              callback(null, result + " [卖出" + sell_body.order_id + "] ");
+            } else {
+              callback(result + " [委托卖出失败]", null);
             }
           }
         })
@@ -224,7 +228,6 @@ router.post('/placeOrder', (req, res, next) => {
         msg: results
       });
     }
-
   })
 })
 
