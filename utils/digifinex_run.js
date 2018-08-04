@@ -19,6 +19,7 @@ if (user) {
 
 
 function intervalFunc() {
+  logger.info("开始运行 ===> " + this.user);
   dealOrder((cb) => {
     logger.info("本次运行结束 ===> " + JSON.stringify(cb));
   })
@@ -119,7 +120,7 @@ function dealOrder(deal_cb) {
         msg: error
       })
     } else {
-      user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
+      this.user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
       deal_cb({
         success: true,
         msg: results
