@@ -164,9 +164,9 @@ router.post('/placeOrder', (req, res, next) => {
           json: true,
           form: post_buy
         }
-        console.log("post_buy ===> " + JSON.stringify(post_buy));
+        //console.log("post_buy ===> " + JSON.stringify(post_buy));
         request(post_options, (err, response, buy_body) => {
-          console.log("buy_body ===> " + JSON.stringify(buy_body));
+          //console.log("buy_body ===> " + JSON.stringify(buy_body));
           if (err) {
             callback("[委托买入失败]" + err, null);
           } else {
@@ -201,9 +201,9 @@ router.post('/placeOrder', (req, res, next) => {
           json: true,
           form: post_sell
         }
-        console.log("post_sell ===> " + JSON.stringify(post_sell));
+        //console.log("post_sell ===> " + JSON.stringify(post_sell));
         request(sell_options, (error, buy_response, sell_body) => {
-          console.log("sell_body ===> " + JSON.stringify(sell_body));
+          //console.log("sell_body ===> " + JSON.stringify(sell_body));
           if (error) {
             callback(result + " [委托卖出失败]" + error, null);
           } else {
