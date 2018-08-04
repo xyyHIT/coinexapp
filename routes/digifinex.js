@@ -32,6 +32,32 @@ router.get('/ticker', (req, res, next) => {
   })
 })
 
+router.get('/trade_pairs', (req, res, next) => {
+  var currTime = Date.now() / 1000;
+  var user = req.query.user;
+  var params = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    timestamp: currTime
+  }
+  signature.digifinex(params, (signature) => {
+    params.sign = signature.signature
+    var options = {
+      url: 'https://openapi.digifinex.com/v2/trade_pairs',
+      method: 'get',
+      json: true,
+      qs: params
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+})
+
 router.get('/limitOrder', (req, res, next) => {
   let user = req.query.user;
   let price = req.query.price;
@@ -201,6 +227,13 @@ router.post('/placeOrder', (req, res, next) => {
 
 function getMatchPrice(user, market, price_cb) {
   var currTime = Date.now() / 1000;
+  // async.waterfall([
+  //   function (callback) {
+  //     var paire_param = {
+
+  //     }
+  //   }
+  // ])
   var params = {
     apiKey: settings.digifinex[user].access_id,
     apiSecret: settings.digifinex[user].secret_key,
