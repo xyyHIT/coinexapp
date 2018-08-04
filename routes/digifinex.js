@@ -163,20 +163,22 @@ router.post('/placeOrder', (req, res, next) => {
           json: true,
           form: post_buy
         }
+        console.log("post_buy ===> " + JSON.stringify(post_buy));
         request(post_options, (err, response, buy_body) => {
           console.log("buy_body ===> " + JSON.stringify(buy_body));
           if (err) {
             callback("[委托买入失败]" + err, null);
           } else {
-            if (buy_body.code == 20011) {
+            if (buy_body.code == 0) {
               result += "[买入" + buy_body.order_id + "]";
               // 如果成功，马上换另一个用户挂卖单
               user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
+              var nowTime = Date.now() / 1000;
               let post_sell = {
                 apiKey: settings.digifinex[user].access_id,
                 apiSecret: settings.digifinex[user].secret_key,
                 amount: deal_count, //下单数量 
-                timestamp: currTime,
+                timestamp: nowTime,
                 price: price,
                 symbol: market,
                 tradeType: 'sell'
@@ -189,6 +191,7 @@ router.post('/placeOrder', (req, res, next) => {
                   json: true,
                   form: post_sell
                 }
+                console.log("post_sell ===> " + JSON.stringify(post_sell));
                 request(sell_options, (error, buy_response, sell_body) => {
                   console.log("sell_body ===> " + JSON.stringify(sell_body));
                   if (error) {
