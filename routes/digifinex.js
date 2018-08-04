@@ -71,7 +71,7 @@ router.get('/limitOrder', (req, res, next) => {
     price: price,
     symbol: 'usdt_btc',
     timestamp: currTime,
-    tradeType: type
+    trade: type
   }
   signature.digifinex(post_sell, (sign) => {
     post_sell.sign = sign.signature;
@@ -116,11 +116,13 @@ function queryBalance(user, balance_cb) {
     request(options, (err, response, body) => {
       var balance = [];
       currency_arr.forEach(currency => {
-        balance.push({
-          market: currency,
-          free: body.free[currency] == null ? 0 : body.free[currency],
-          frozen: body.frozen[currency] == null ? 0 : body.frozen[currency]
-        })
+        if (body.free) {
+          balance.push({
+            market: currency,
+            free: body.free[currency] == null ? 0 : body.free[currency],
+            frozen: body.frozen[currency] == null ? 0 : body.frozen[currency]
+          })
+        }
       })
       balance_cb(balance);
     })
