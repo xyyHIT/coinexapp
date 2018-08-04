@@ -88,15 +88,16 @@ router.post('/placeOrder', (req, res, next) => {
       })
     },
     function (price, callback) {
-      let currTime = Date.now();
-      let deal_count = req.body.amount * 0.99;
+      let currTime = parseInt(Date.now() / 1000);
+      let deal_count = (req.body.amount * 0.99).toFixed(4);
       // 先挂买单
       let post_buy = {
-        apiKey: settings.digifinex[user].access_id,
         amount: deal_count, //下单数量 
-        timestamp: currTime,
+        apiKey: settings.digifinex[user].access_id,
+        apiSecret: settings.digifinex[user].secret_key,
         price: price,
         symbol: market,
+        timestamp: currTime,
         type: 'buy'
       }
       var result = '[price=' + price + "]";
@@ -106,7 +107,7 @@ router.post('/placeOrder', (req, res, next) => {
           url: 'https://openapi.digifinex.com/v2/trade',
           method: 'post',
           json: true,
-          body: post_buy
+          form: post_buy
         }
         request(post_options, (err, response, buy_body) => {
           console.log("buy_body ===> " + JSON.stringify(buy_body));
@@ -119,6 +120,7 @@ router.post('/placeOrder', (req, res, next) => {
               user = user == settings.digifinex.length - 1 ? 0 : parseInt(user) + 1;
               let post_sell = {
                 apiKey: settings.digifinex[user].access_id,
+                apiSecret: settings.digifinex[user].secret_key,
                 amount: deal_count, //下单数量 
                 timestamp: currTime,
                 price: price,
@@ -131,7 +133,7 @@ router.post('/placeOrder', (req, res, next) => {
                   url: 'https://openapi.digifinex.com/v2/trade',
                   method: 'post',
                   json: true,
-                  body: post_sell
+                  form: post_sell
                 }
                 request(sell_options, (error, buy_response, sell_body) => {
                   console.log("sell_body ===> " + JSON.stringify(sell_body));
@@ -194,8 +196,8 @@ function getMatchPrice(user, market, price_cb) {
         var min_sell = body.ticker[market].sell;
         var max_buy = body.ticker[market].buy;
         var sub = min_sell - max_buy;
-        if (sub > 0.000002) {
-          var price = max_buy + parseFloat((sub / 2).toFixed(4));
+        if (sub > 0.02) {
+          var price = max_buy + parseFloat((sub / 2).toFixed(2));
           console.log(min_sell + " " + price + " " + max_buy);
           price_cb({
             success: true,
