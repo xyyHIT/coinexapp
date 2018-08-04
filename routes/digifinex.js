@@ -182,7 +182,7 @@ function getMatchPrice(user, market, price_cb) {
   signature.digifinex(params, (signature) => {
     params.sign = signature.signature
     var options = {
-      url: 'https://openapi.digifinex.com/v2/ticker',
+      url: 'https://openapi.digifinex.com/v2/depth',
       method: 'get',
       json: true,
       qs: params
@@ -193,8 +193,8 @@ function getMatchPrice(user, market, price_cb) {
           success: false
         })
       } else {
-        var min_sell = body.ticker[market].sell;
-        var max_buy = body.ticker[market].buy;
+        var min_sell = body.asks[body.asks.length - 1][0];
+        var max_buy = body.bids[body.bids.length - 1][0];
         var sub = min_sell - max_buy;
         if (sub > 0.02) {
           var price = max_buy + parseFloat((sub / 2).toFixed(2));
