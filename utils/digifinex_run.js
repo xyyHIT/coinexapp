@@ -9,7 +9,7 @@ var async = require('async');
 // setInterval(intervalFunc, 1000 * 60 * 2);
 
 // function intervalFunc() {
-logger.info("开始运行 ===> " + user);
+logger.info("开始运行 ===>");
 dealOrder((cb) => {
   logger.info("本次运行结束 ===> " + JSON.stringify(cb));
 })
