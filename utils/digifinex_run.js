@@ -434,14 +434,15 @@ function queryDealUser(cb) {
   })
 }
 
-function queryPrice(user, now_price_cb) {
-  var currTime = Date.now() / 1000;
+function queryNowPrice(user, now_price_cb) {
+  var currTime = parseInt(Date.now() / 1000);
   var params = {
     apiKey: settings.digifinex[user].access_id,
     apiSecret: settings.digifinex[user].secret_key,
     symbol: market,
     timestamp: currTime
   }
+
   signature.digifinex(params, (signature) => {
     params.sign = signature.signature
     var options = {
@@ -450,9 +451,11 @@ function queryPrice(user, now_price_cb) {
       json: true,
       qs: params
     }
+    logger.info("quer_now_price ===> " + JSON.stringify(params));
     request(options, (err, response, body) => {
+      logger.info("quer_now_price body ===> " + JSON.stringify(body));
       if (err) {
-
+        now_price_cb({});
       } else {
         now_price_cb(body.last);
       }
