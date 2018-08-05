@@ -439,6 +439,7 @@ function queryPrice(user, now_price_cb) {
   var params = {
     apiKey: settings.digifinex[user].access_id,
     apiSecret: settings.digifinex[user].secret_key,
+    symbol: market,
     timestamp: currTime
   }
   signature.digifinex(params, (signature) => {
