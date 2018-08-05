@@ -9,6 +9,7 @@ var async = require('async');
 let currency_arr = ["usdt", "btc"];
 let market = 'usdt_btc';
 let deal_count = 0.03;
+let deal_usdt = 300;
 
 // setInterval(intervalFunc, 1000 * 60 * 2);
 
@@ -37,6 +38,7 @@ function dealOrder(deal_cb) {
     // 查询操作用户
     function (price, callback) {
       queryDealUser((user_cb) => {
+        console.log("user_cb ===> " + user_cb);
         if (user_cb.user) {
           result.buy = user_cb.user;
           callback(null, user_cb.user, price)
@@ -327,15 +329,15 @@ function queryDealUser(cb) {
     } else {
       var user_a = result[0];
       var user_b = result[1];
-      var user_a_usdt = user_a[0].free;
+      var user_a_usdt = parseFloat(user_a[0].free);
       console.log("user_a_usdt ===> " + user_a_usdt);
-      var user_a_btc = user_a[1].free;
+      var user_a_btc = parseFloat(user_a[1].free);
       console.log("user_a_btc ===> " + user_a_btc);
-      var user_b_usdt = user_b[0].free;
+      var user_b_usdt = parseFloat(user_b[0].free);
       console.log("user_b_usdt ===> " + user_b_usdt);
-      var user_b_btc = user_b[1].free;
+      var user_b_btc = parseFloat(user_b[1].free);
       console.log("user_b_btc ===> " + user_b_btc);
-      if (user_a_usdt > 300 && user_b_btc > deal_count) {
+      if (user_a_usdt > deal_usdt && user_b_btc > deal_count) {
         cb({
           user: 0,
           info: {
@@ -343,7 +345,7 @@ function queryDealUser(cb) {
             sell: user_b
           }
         })
-      } else if (user_b_usdt > 300 && user_a_btc > deal_count) {
+      } else if (user_b_usdt > deal_usdt && user_a_btc > deal_count) {
         cb({
           user: 1,
           info: {
