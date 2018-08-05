@@ -5,7 +5,7 @@ var signature = require('../utils/signature');
 var settings = require('../settings');
 var async = require('async');
 
-var currency_arr = ["usdt", "btc", "eos"];
+var currency_arr = ["usdt", "btc"];
 
 router.get('/ticker', (req, res, next) => {
   var currTime = Date.now() / 1000;
@@ -64,6 +64,7 @@ router.get('/queryOrder', (req, res, next) => {
   })
 })
 
+
 router.get('/trade_pairs', (req, res, next) => {
   var currTime = Date.now() / 1000;
   var user = req.query.user;
@@ -116,6 +117,32 @@ router.get('/limitOrder', (req, res, next) => {
     }
     console.log(JSON.stringify(post_sell));
     request(sell_options, (error, buy_response, sell_body) => {
+      res.json(sell_body);
+    })
+  })
+})
+
+
+router.get('/cancelOrder', (req, res, next) => {
+  let user = req.query.user;
+  let order_id = req.query.order_id;
+  let currTime = parseInt(Date.now() / 1000);
+  let post_body = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    order_id: order_id,
+    timestamp: currTime
+  }
+
+  signature.digifinex(post_body, (sign) => {
+    post_body.sign = sign.signature;
+    let options = {
+      url: 'https://openapi.digifinex.com/v2/cancel_order',
+      method: 'post',
+      json: true,
+      form: post_body
+    }
+    request(options, (error, buy_response, sell_body) => {
       res.json(sell_body);
     })
   })
