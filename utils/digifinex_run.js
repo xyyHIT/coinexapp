@@ -402,6 +402,7 @@ function queryDealUser(cb) {
           async.waterfall([
             function (market_sell_cb) {
               queryPrice(sell_user, (now_price) => {
+                logger.info("now_price ===> " + JSON.stringify(now_price));
                 market_sell_cb(null, now_price);
               })
             },
@@ -411,7 +412,7 @@ function queryDealUser(cb) {
               })
             }
           ], function (err, sell_result) {
-            logger.log("market_sell result ===> " + sell_result);
+            logger.log("market_sell result ===> " + JSON.stringify(sell_result));
             cb({
               user: sell_user,
               info: {
@@ -420,13 +421,14 @@ function queryDealUser(cb) {
               }
             })
           })
+        } else {
+          cb({
+            info: {
+              buy: user_b,
+              sell: user_a
+            }
+          })
         }
-        cb({
-          info: {
-            buy: user_b,
-            sell: user_a
-          }
-        })
       }
     }
   })
