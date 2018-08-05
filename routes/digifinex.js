@@ -32,6 +32,38 @@ router.get('/ticker', (req, res, next) => {
   })
 })
 
+router.get('/queryOrder', (req, res, next) => {
+  var currTime = Date.now() / 1000;
+  var user = req.query.user;
+  var order_id = req.query.order_id;
+  var params = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    order_id: order_id,
+    timestamp: currTime
+  }
+  signature.digifinex(params, (signature) => {
+    params.sign = signature.signature
+    var options = {
+      url: 'https://openapi.digifinex.com/v2/order_detail',
+      method: 'get',
+      json: true,
+      qs: params
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+        res.json({});
+      } else {
+        res.json({
+          status: body.status,
+          type: body.type,
+          order_id: order_id
+        });
+      }
+    })
+  })
+})
+
 router.get('/trade_pairs', (req, res, next) => {
   var currTime = Date.now() / 1000;
   var user = req.query.user;
