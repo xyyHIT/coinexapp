@@ -39,9 +39,10 @@ function dealOrder(deal_cb) {
     function (price, callback) {
       queryDealUser((user_cb) => {
         console.log("user_cb ===> " + JSON.stringify(user_cb));
-        if (user_cb.user) {
-          result.buy = user_cb.user;
-          callback(null, user_cb.user, price)
+        var user = user_cb["user"];
+        if (user) {
+          result.buy = user;
+          callback(null, user, price)
         } else {
           callback('用户余额异常');
         }
@@ -330,13 +331,9 @@ function queryDealUser(cb) {
       var user_a = result[0];
       var user_b = result[1];
       var user_a_usdt = parseFloat(user_a[0].free);
-      console.log("user_a_usdt ===> " + user_a_usdt);
       var user_a_btc = parseFloat(user_a[1].free);
-      console.log("user_a_btc ===> " + user_a_btc);
       var user_b_usdt = parseFloat(user_b[0].free);
-      console.log("user_b_usdt ===> " + user_b_usdt);
       var user_b_btc = parseFloat(user_b[1].free);
-      console.log("user_b_btc ===> " + user_b_btc);
       if (user_a_usdt > deal_usdt && user_b_btc > deal_count) {
         cb({
           user: 0,
