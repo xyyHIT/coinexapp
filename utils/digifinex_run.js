@@ -6,6 +6,10 @@ log4js.configure(settings.log4js);
 var logger = log4js.getLogger('balance');
 var async = require('async');
 
+let currency_arr = ["usdt", "btc"];
+let market = 'usdt_btc';
+let deal_count = 0.03;
+
 // setInterval(intervalFunc, 1000 * 60 * 2);
 
 // function intervalFunc() {
@@ -15,8 +19,6 @@ dealOrder((cb) => {
 })
 // }
 
-let market = 'usdt_btc';
-let deal_count = 0.03;
 
 function dealOrder(deal_cb) {
   var result = {};
