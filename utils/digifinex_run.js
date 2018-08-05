@@ -42,7 +42,7 @@ function dealOrder(deal_cb) {
         logger.info("deal user ===> " + JSON.stringify(user_cb));
         var user = user_cb["user"];
         if (user == 0 || user == 1) {
-          result.buy = user;
+          result.first_buy = user;
           callback(null, user, price)
         } else {
           callback('用户余额异常');
