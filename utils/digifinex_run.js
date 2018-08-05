@@ -115,7 +115,7 @@ function dealOrder(deal_cb) {
             if (sell_body.code == 0) {
               result.sell_id = sell_body.order_id;
               result.seller = user;
-              callback(null, user, price);
+              callback(null, sell_body);
             } else {
               callback("sell_error", sell_body);
             }
@@ -124,13 +124,16 @@ function dealOrder(deal_cb) {
       })
     },
     // 查询订单状态
-    function (callback) {
+    function (sell_body, callback) {
+      logger.info("result ===> " + JSON.stringify(result));
       if (result.sell_id && result.buy_id && result.seller && result.buyer) {
         async.parallel([
           function (ret_cb) {
             queryOrder(result.buyer, result.buy_id, (buy_order_cb) => {
+              logger.info("buy_order_status ===> " + JSON.stringify(buy_order_cb));
               if (buy_order_cb.status != 2) {
                 cancelOrder(result.buyer, result.buy_id, (cancel_buy_cb) => {
+                  logger.info("buy_order_cancel ===> " + cancel_buy_cb);
                   result.cancel_buy = result.buy_id;
                   ret_cb(null, cancel_buy_cb);
                 })
@@ -141,8 +144,10 @@ function dealOrder(deal_cb) {
           },
           function (ret_cb) {
             queryOrder(result.seller, result.sell_id, (sell_order_cb) => {
+              logger.info("sell_order_status ===> " + JSON.stringify(sell_order_cb));
               if (sell_order_cb.status != 2) {
                 cancelOrder(result.seller, result.sell_id, (cancel_sell_cb) => {
+                  logger.info("sell_order_cancel ===> " + cancel_sell_cb);
                   result.cancel_sell = result.sell_id;
                   ret_cb(null, cancel_sell_cb);
                 })
