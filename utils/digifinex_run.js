@@ -411,7 +411,7 @@ function queryDealUser(cb) {
               })
             }
           ], function (err, sell_result) {
-            logger.log("market_sell ===> " + order_cb);
+            logger.log("market_sell result ===> " + sell_result);
             cb({
               user: sell_user,
               info: {
