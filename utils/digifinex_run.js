@@ -38,7 +38,7 @@ function dealOrder(deal_cb) {
     // 查询操作用户
     function (price, callback) {
       queryDealUser((user_cb) => {
-        console.log("user_cb ===> " + user_cb);
+        console.log("user_cb ===> " + JSON.stringify(user_cb));
         if (user_cb.user) {
           result.buy = user_cb.user;
           callback(null, user_cb.user, price)
