@@ -133,7 +133,7 @@ function dealOrder(deal_cb) {
               logger.info("buy_order_status ===> " + JSON.stringify(buy_order_cb));
               if (buy_order_cb.status != 2) {
                 cancelOrder(result.buyer, result.buy_id, (cancel_buy_cb) => {
-                  logger.info("buy_order_cancel ===> " + cancel_buy_cb);
+                  logger.info("buy_order_cancel ===> " + JSON.stringify(cancel_buy_cb));
                   result.cancel_buy = result.buy_id;
                   ret_cb(null, cancel_buy_cb);
                 })
@@ -147,7 +147,7 @@ function dealOrder(deal_cb) {
               logger.info("sell_order_status ===> " + JSON.stringify(sell_order_cb));
               if (sell_order_cb.status != 2) {
                 cancelOrder(result.seller, result.sell_id, (cancel_sell_cb) => {
-                  logger.info("sell_order_cancel ===> " + cancel_sell_cb);
+                  logger.info("sell_order_cancel ===> " + JSON.stringify(cancel_sell_cb));
                   result.cancel_sell = result.sell_id;
                   ret_cb(null, cancel_sell_cb);
                 })
@@ -277,6 +277,41 @@ function queryOrder(user, order_id, cb) {
   })
 }
 
+function limitOrder(user, price, type, order_cb) {
+  let currTime = parseInt(Date.now() / 1000);
+  // 先挂买单
+  let post_order = {
+    amount: deal_count, //下单数量 
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    price: price,
+    symbol: market,
+    timestamp: currTime,
+    type: type
+  }
+  signature.digifinex(post_order, (cb) => {
+    post_order.sign = cb.signature;
+    let post_options = {
+      url: 'https://openapi.digifinex.com/v2/trade',
+      method: 'post',
+      json: true,
+      form: post_order
+    }
+    request(post_options, (err, response, order_body) => {
+      logger.info("post_order ===> " + JSON.stringify(order_body));
+      if (err) {
+        order_cb(err);
+      } else {
+        if (order_body.code == 0) {
+          order_cb(order_body);
+        } else {
+          order_cb(order_body);
+        }
+      }
+    })
+  })
+}
+
 function cancelOrder(user, order_id, cb) {
   let currTime = parseInt(Date.now() / 1000);
   let post_body = {
@@ -358,6 +393,34 @@ function queryDealUser(cb) {
           }
         })
       } else {
+        if (user_a_btc > deal_count || user_b_btc > deal_count) {
+          let sell_user = 0;
+          if (user_a_btc < user_b_btc) {
+            // 卖掉b的0.03 btc
+            sell_user = 1
+          }
+          async.waterfall([
+            function (market_sell_cb) {
+              queryPrice(sell_user, (now_price) => {
+                market_sell_cb(null, now_price);
+              })
+            },
+            function (now_price, market_sell_cb) {
+              limitOrder(sell_user, now_price, 'sell', (order_cb) => {
+                market_sell_cb(null, order_cb);
+              })
+            }
+          ], function (err, sell_result) {
+            logger.log("market_sell ===> " + order_cb);
+            cb({
+              user: sell_user,
+              info: {
+                buy: user_b,
+                sell: user_a
+              }
+            })
+          })
+        }
         cb({
           info: {
             buy: user_b,
@@ -366,5 +429,30 @@ function queryDealUser(cb) {
         })
       }
     }
+  })
+}
+
+function queryPrice(user, now_price_cb) {
+  var currTime = Date.now() / 1000;
+  var params = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    timestamp: currTime
+  }
+  signature.digifinex(params, (signature) => {
+    params.sign = signature.signature
+    var options = {
+      url: 'https://openapi.digifinex.com/v2/ticker',
+      method: 'get',
+      json: true,
+      qs: params
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        now_price_cb(body.last);
+      }
+    })
   })
 }
