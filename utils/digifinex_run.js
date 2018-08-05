@@ -378,19 +378,11 @@ function queryDealUser(cb) {
       var user_b_btc = parseFloat(user_b[1].free);
       if (user_a_usdt > deal_usdt && user_b_btc > deal_count) {
         cb({
-          user: 0,
-          info: {
-            buy: user_a,
-            sell: user_b
-          }
+          user: 0
         })
       } else if (user_b_usdt > deal_usdt && user_a_btc > deal_count) {
         cb({
-          user: 1,
-          info: {
-            buy: user_b,
-            sell: user_a
-          }
+          user: 1
         })
       } else {
         if (user_a_btc > deal_count || user_b_btc > deal_count) {
@@ -401,7 +393,7 @@ function queryDealUser(cb) {
           }
           async.waterfall([
             function (market_sell_cb) {
-              queryNowPrice(sell_user, (now_price) => {
+              queryNowPrice(sell_user, 'sell', (now_price) => {
                 logger.info("now_price ===> " + JSON.stringify(now_price));
                 market_sell_cb(null, now_price);
               })
@@ -414,27 +406,41 @@ function queryDealUser(cb) {
           ], function (err, sell_result) {
             logger.log("market_sell result ===> " + JSON.stringify(sell_result));
             cb({
-              user: sell_user,
-              info: {
-                buy: user_b,
-                sell: user_a
-              }
+              user: sell_user
             })
           })
-        } else {
-          cb({
-            info: {
-              buy: user_b,
-              sell: user_a
+        } else if (user_a_usdt > deal_usdt || user_b_usdt > deal_usdt) {
+          let buy_user = 0;
+          if (user_b_usdt > user_a_usdt) {
+            buy_user = 1;
+          }
+          async.waterfall([
+            function (market_buy_cb) {
+              queryNowPrice(buy_user, 'buy', (now_price) => {
+                logger.info("now_price ===> " + JSON.stringify(now_price));
+                market_buy_cb(null, now_price);
+              })
+            },
+            function (now_price, market_buy_cb) {
+              limitOrder(buy_user, now_price, 'buy', (order_cb) => {
+                market_buy_cb(null, order_cb);
+              })
             }
+          ], function (err, buy_result) {
+            logger.log("market_buy result ===> " + JSON.stringify(buy_result));
+            cb({
+              user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
+            });
           })
+        } else {
+          cb({});
         }
       }
     }
   })
 }
 
-function queryNowPrice(user, now_price_cb) {
+function queryNowPrice(user, type, now_price_cb) {
   var currTime = parseInt(Date.now() / 1000);
   var params = {
     apiKey: settings.digifinex[user].access_id,
@@ -442,24 +448,37 @@ function queryNowPrice(user, now_price_cb) {
     symbol: market,
     timestamp: currTime
   }
-
   signature.digifinex(params, (signature) => {
     params.sign = signature.signature
     var options = {
-      url: 'https://openapi.digifinex.com/v2/ticker',
+      url: 'https://openapi.digifinex.com/v2/depth',
       method: 'get',
       json: true,
       qs: params
     }
-    logger.info("quer_now_price ===> " + JSON.stringify(params));
     request(options, (err, response, body) => {
-      logger.info("quer_now_price body ===> " + JSON.stringify(body));
       if (err) {
         now_price_cb({});
       } else {
-        console.log(" ====> " + body.ticker[market].last);
-        now_price_cb(body.ticker[market].sell);
+        if (type == 'buy') {
+          // 从asks里面找
+          let length = body.asks.length;
+          for (let index = length - 1; index >= 0; index--) {
+            if (body.asks[index][1] > deal_count) {
+              now_price_cb(body.asks[index][0]);
+            }
+          }
+        } else if (type == 'sell') {
+          // 从bids里面找
+          let length = body.bids.length;
+          for (let index = 0; index < length; index++) {
+            if (body.bids[index][1] > deal_count) {
+              now_price_cb(body.bids[index][0]);
+            }
+          }
+        }
       }
     })
   })
+
 }
