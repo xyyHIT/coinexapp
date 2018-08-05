@@ -327,7 +327,15 @@ function queryDealUser(cb) {
     } else {
       var user_a = result[0];
       var user_b = result[1];
-      if (user_a[0].market == 'usdt' && user_a[0].free > 300 && user_b[1].market == 'btc' && user_b[1].free > deal_count) {
+      var user_a_usdt = user_a[0].free;
+      console.log("user_a_usdt ===> " + user_a_usdt);
+      var user_a_btc = user_a[1].free;
+      console.log("user_a_btc ===> " + user_a_btc);
+      var user_b_usdt = user_b[0].free;
+      console.log("user_b_usdt ===> " + user_b_usdt);
+      var user_b_btc = user_b[1].free;
+      console.log("user_b_btc ===> " + user_b_btc);
+      if (user_a_usdt > 300 && user_b_btc > deal_count) {
         cb({
           user: 0,
           info: {
@@ -335,7 +343,7 @@ function queryDealUser(cb) {
             sell: user_b
           }
         })
-      } else if (user_a[1].market == 'usdt' && user_a[1].free > 300 && user_b[0].market == 'btc' && user_b[0].free > deal_count) {
+      } else if (user_b_usdt > 300 && user_a_btc > deal_count) {
         cb({
           user: 1,
           info: {
