@@ -124,6 +124,7 @@ function dealOrder(deal_cb) {
             queryOrder(result.buyer, result.buy_id, (buy_order_cb) => {
               if (buy_order_cb.status != 2) {
                 cancelOrder(result.buyer, result.buy_id, (cancel_buy_cb) => {
+                  result.cancel_buy = result.buy_id;
                   ret_cb(null, cancel_buy_cb);
                 })
               } else {
@@ -135,6 +136,7 @@ function dealOrder(deal_cb) {
             queryOrder(result.seller, result.sell_id, (sell_order_cb) => {
               if (sell_order_cb.status != 2) {
                 cancelOrder(result.seller, result.sell_id, (cancel_sell_cb) => {
+                  result.cancel_sell = result.sell_id;
                   ret_cb(null, cancel_sell_cb);
                 })
               } else {
@@ -156,7 +158,7 @@ function dealOrder(deal_cb) {
     } else {
       deal_cb({
         success: true,
-        msg: results
+        msg: result
       });
     }
   })
