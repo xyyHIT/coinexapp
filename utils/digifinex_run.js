@@ -401,7 +401,7 @@ function queryDealUser(cb) {
           }
           async.waterfall([
             function (market_sell_cb) {
-              queryPrice(sell_user, (now_price) => {
+              queryNowPrice(sell_user, (now_price) => {
                 logger.info("now_price ===> " + JSON.stringify(now_price));
                 market_sell_cb(null, now_price);
               })
