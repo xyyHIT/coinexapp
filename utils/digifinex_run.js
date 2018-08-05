@@ -126,7 +126,7 @@ function dealOrder(deal_cb) {
     // 查询订单状态
     function (sell_body, callback) {
       logger.info("result ===> " + JSON.stringify(result));
-      if (result.sell_id && result.buy_id && result.seller && result.buyer) {
+      if (result.sell_id != null && result.buy_id != null && result.seller != null && result.buyer != null) {
         async.parallel([
           function (ret_cb) {
             queryOrder(result.buyer, result.buy_id, (buy_order_cb) => {
