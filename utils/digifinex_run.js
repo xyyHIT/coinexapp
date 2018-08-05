@@ -457,7 +457,8 @@ function queryNowPrice(user, now_price_cb) {
       if (err) {
         now_price_cb({});
       } else {
-        now_price_cb(body.last);
+        console.log(" ====> " + body.ticker[market].last);
+        now_price_cb(body.ticker[market].last);
       }
     })
   })
