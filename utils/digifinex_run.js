@@ -11,14 +11,14 @@ let market = 'usdt_btc';
 let deal_count = 0.03;
 let deal_usdt = 300;
 
-setInterval(intervalFunc, 1000 * 60 * 2);
+// setInterval(intervalFunc, 1000 * 60 * 2);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
@@ -279,7 +279,6 @@ function queryOrder(user, order_id, cb) {
 
 function limitOrder(user, price, type, order_cb) {
   let currTime = parseInt(Date.now() / 1000);
-  // 先挂买单
   let post_order = {
     amount: deal_count, //下单数量 
     apiKey: settings.digifinex[user].access_id,
@@ -289,6 +288,7 @@ function limitOrder(user, price, type, order_cb) {
     timestamp: currTime,
     type: type
   }
+  logger.info("market sell order ===> " + JSON.stringify(post_order))
   signature.digifinex(post_order, (cb) => {
     post_order.sign = cb.signature;
     let post_options = {
@@ -397,7 +397,7 @@ function queryDealUser(cb) {
           let sell_user = 0;
           if (user_a_btc < user_b_btc) {
             // 卖掉b的0.03 btc
-            sell_user = 1
+            sell_user = 1;
           }
           async.waterfall([
             function (market_sell_cb) {
