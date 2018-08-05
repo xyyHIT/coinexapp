@@ -11,14 +11,14 @@ let market = 'usdt_btc';
 let deal_count = 0.03;
 let deal_usdt = 300;
 
-// setInterval(intervalFunc, 1000 * 60 * 2);
+setInterval(intervalFunc, 1000 * 60 * 2);
 
-// function intervalFunc() {
-logger.info("开始运行 ===>");
-dealOrder((cb) => {
-  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-})
-// }
+function intervalFunc() {
+  logger.info("开始运行 ===>");
+  dealOrder((cb) => {
+    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+  })
+}
 
 
 function dealOrder(deal_cb) {
@@ -27,6 +27,7 @@ function dealOrder(deal_cb) {
     // 获取合适价格
     function (callback) {
       getMatchPrice((price) => {
+        logger.info("price ===> " + JSON.stringify(price));
         if (price.success) {
           result.price = price.price;
           callback(null, price.price);
@@ -38,7 +39,7 @@ function dealOrder(deal_cb) {
     // 查询操作用户
     function (price, callback) {
       queryDealUser((user_cb) => {
-        console.log("user_cb ===> " + JSON.stringify(user_cb));
+        logger.info("deal user ===> " + JSON.stringify(user_cb));
         var user = user_cb["user"];
         if (user == 0 || user == 1) {
           result.buy = user;
@@ -70,7 +71,7 @@ function dealOrder(deal_cb) {
         }
         //console.log("post_buy ===> " + JSON.stringify(post_buy));
         request(post_options, (err, response, buy_body) => {
-          //console.log("buy_body ===> " + JSON.stringify(buy_body));
+          logger.info("buy_body ===> " + JSON.stringify(buy_body));
           if (err) {
             callback("buy_error", err);
           } else {
@@ -107,6 +108,7 @@ function dealOrder(deal_cb) {
           form: post_sell
         }
         request(sell_options, (error, buy_response, sell_body) => {
+          logger.info("sell_body ===> " + JSON.stringify(sell_body));
           if (error) {
             callback("sell_error", error);
           } else {
@@ -324,7 +326,7 @@ function queryDealUser(cb) {
       })
     })
   }, function (error, result) {
-    console.log("result ===> " + JSON.stringify(result));
+    logger.info("user balance ===> " + JSON.stringify(result));
     if (error) {
 
     } else {
