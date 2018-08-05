@@ -334,7 +334,7 @@ function queryDealUser(cb) {
       var user_a_btc = parseFloat(user_a[1].free);
       var user_b_usdt = parseFloat(user_b[0].free);
       var user_b_btc = parseFloat(user_b[1].free);
-      if (user_a_usdt < deal_usdt && user_b_btc < deal_count) {
+      if (user_a_usdt > deal_usdt && user_b_btc > deal_count) {
         cb({
           user: 0,
           info: {
