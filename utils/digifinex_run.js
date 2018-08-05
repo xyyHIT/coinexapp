@@ -321,11 +321,14 @@ function queryDealUser(cb) {
       })
     })
   }, function (error, result) {
+    console.log("result ===> " + JSON.stringify(result));
     if (error) {
 
     } else {
       var user_a = result[0];
+      console.log(JSON.stringify(user_a));
       var user_b = result[1];
+      console.log(JSON.stringify(user_a));
       if (user_a[0].market == 'usdt' && user_a[0].free > 300 && user_b[1].market == 'btc' && user_b[1].free > deal_count) {
         cb({
           user: 0,
