@@ -122,6 +122,28 @@ router.get('/limitOrder', (req, res, next) => {
   })
 })
 
+router.get('/openOrder', (req, res, next) => {
+  let user = req.query.user;
+  let currTime = parseInt(Date.now() / 1000);
+  let post_body = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    timestamp: currTime,
+  }
+  signature.digifinex(post_body, (sign) => {
+    post_body.sign = sign.signature;
+    let options = {
+      url: 'https://openapi.digifinex.com/v2/open_orders',
+      method: 'post',
+      json: true,
+      form: post_body
+    }
+    request(options, (error, buy_response, body) => {
+      res.json(body);
+    })
+  })
+})
+
 
 router.get('/cancelOrder', (req, res, next) => {
   let user = req.query.user;
