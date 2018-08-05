@@ -399,15 +399,23 @@ function queryDealUser(cb) {
               })
             },
             function (now_price, market_sell_cb) {
-              limitOrder(sell_user, now_price, 'sell', (order_cb) => {
-                market_sell_cb(null, order_cb);
-              })
+              if (now_price > 0) {
+                limitOrder(sell_user, now_price, 'sell', (order_cb) => {
+                  market_sell_cb(null, order_cb);
+                })
+              } else {
+                market_sell_cb('没找到合适的卖价', order_cb);
+              }
             }
           ], function (err, sell_result) {
             logger.log("market_sell result ===> " + JSON.stringify(sell_result));
-            cb({
-              user: sell_user
-            })
+            if (err) {
+              cb({});
+            } else {
+              cb({
+                user: sell_user
+              })
+            }
           })
         } else if (user_a_usdt > deal_usdt || user_b_usdt > deal_usdt) {
           let buy_user = 0;
@@ -422,15 +430,23 @@ function queryDealUser(cb) {
               })
             },
             function (now_price, market_buy_cb) {
-              limitOrder(buy_user, now_price, 'buy', (order_cb) => {
-                market_buy_cb(null, order_cb);
-              })
+              if (now_price > 0) {
+                limitOrder(buy_user, now_price, 'buy', (order_cb) => {
+                  market_buy_cb(null, order_cb);
+                })
+              } else {
+                market_buy_cb('没找到合适的买价', order_cb);
+              }
             }
           ], function (err, buy_result) {
             logger.log("market_buy result ===> " + JSON.stringify(buy_result));
-            cb({
-              user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
-            });
+            if (err) {
+              cb({});
+            } else {
+              cb({
+                user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
+              });
+            }
           })
         } else {
           cb({});
@@ -463,19 +479,25 @@ function queryNowPrice(user, type, now_price_cb) {
         if (type == 'buy') {
           // 从asks里面找
           let length = body.asks.length;
+          var buy_price = 0;
           for (let index = length - 1; index >= 0; index--) {
             if (body.asks[index][1] > deal_count) {
-              now_price_cb(body.asks[index][0]);
+              buy_price = body.asks[index][0];
+              break;
             }
           }
+          now_price_cb(buy_price);
         } else if (type == 'sell') {
           // 从bids里面找
           let length = body.bids.length;
+          var sell_price = 0;
           for (let index = 0; index < length; index++) {
             if (body.bids[index][1] > deal_count) {
-              now_price_cb(body.bids[index][0]);
+              sell_price = body.bids[index][0];
+              break;
             }
           }
+          now_price_cb(sell_price);
         }
       }
     })
