@@ -28,9 +28,10 @@ function dealOrder(deal_cb) {
     function (callback) {
       async.map([0, 1], function (user, cancel_callback) {
         cancelOpenOrder(user, (cancel) => {
-          logger.info('取消锁定的订单 ===> ' + JSON.stringify(cancel));
+          cancel_callback(null, cancel);
         })
       }, function (error, results) {
+        logger.info('取消锁定的订单 ===> ' + JSON.stringify(results));
         callback(null);
       })
     },
