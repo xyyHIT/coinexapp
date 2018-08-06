@@ -11,19 +11,29 @@ let market = 'usdt_btc';
 let deal_count = 0.03;
 let deal_usdt = 300;
 
-setInterval(intervalFunc, 1000 * 60 * 2);
+// setInterval(intervalFunc, 1000 * 60 * 2);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
   var result = {};
   async.waterfall([
+    // 取消所有冻结的订单
+    function (callback) {
+      async.map([0, 1], function (user, cancel_callback) {
+        cancelOpenOrder(user, (cancel) => {
+          logger.info('取消锁定的订单 ===> ' + JSON.stringify(cancel));
+        })
+      }, function (error, results) {
+        callback(null);
+      })
+    },
     // 获取合适价格
     function (callback) {
       getMatchPrice((price) => {
@@ -503,4 +513,36 @@ function queryNowPrice(user, type, now_price_cb) {
     })
   })
 
+}
+
+function cancelOpenOrder(user, cancel_cb) {
+  let currTime = parseInt(Date.now() / 1000);
+  let post_body = {
+    apiKey: settings.digifinex[user].access_id,
+    apiSecret: settings.digifinex[user].secret_key,
+    timestamp: currTime,
+  }
+  signature.digifinex(post_body, (sign) => {
+    post_body.sign = sign.signature;
+    let options = {
+      url: 'https://openapi.digifinex.com/v2/open_orders',
+      method: 'post',
+      json: true,
+      form: post_body
+    }
+    request(options, (error, buy_response, body) => {
+      if (body.total > 0) {
+        async.map(body.orders, function (order, callback) {
+          cancelOrder(user, order.order_id, (cancel) => {
+            logger.info(order.order_id + " cancel ===> " + JSON.stringify(cancel));
+            callback(null, cancel);
+          });
+        }, function (err, results) {
+          cancel_cb(results);
+        })
+      } else {
+        cancel_cb({})
+      }
+    })
+  })
 }
