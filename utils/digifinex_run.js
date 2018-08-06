@@ -532,7 +532,8 @@ function cancelOpenOrder(user, cancel_cb) {
       form: post_body
     }
     request(options, (error, buy_response, body) => {
-      if (body.total != null && body.total > 0) {
+      logger.info("open_orders ===> " + JSON.stringify(body));
+      if (body.code != null && body.code == 0 && body.orders != null && body.orders.length > 0) {
         async.map(body.orders, function (order, callback) {
           cancelOrder(user, order.order_id, (cancel) => {
             logger.info(order.order_id + " cancel ===> " + JSON.stringify(cancel));
