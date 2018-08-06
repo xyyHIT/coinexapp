@@ -365,7 +365,7 @@ function queryDealUser(cb) {
       request(options, (err, response, body) => {
         var balance = [];
         currency_arr.forEach(currency => {
-          if (body.free) {
+          if (body.free != null) {
             balance.push({
               market: currency,
               free: body.free[currency] == null ? 0 : body.free[currency],
