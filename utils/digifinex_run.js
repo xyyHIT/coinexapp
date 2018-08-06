@@ -363,23 +363,29 @@ function queryDealUser(cb) {
         qs: params
       }
       request(options, (err, response, body) => {
-        var balance = [];
-        currency_arr.forEach(currency => {
-          if (body.free != null) {
-            balance.push({
-              market: currency,
-              free: body.free[currency] == null ? 0 : body.free[currency],
-              frozen: body.frozen[currency] == null ? 0 : body.frozen[currency]
-            })
-          }
-        })
-        callback(null, balance);
+        if (err) {
+          logger.info("myposition error ===> " + JSON.stringify(err));
+          callback('查询余额失败', null);
+        } else {
+          logger.info("myposition ===> " + JSON.stringify(body));
+          var balance = [];
+          currency_arr.forEach(currency => {
+            if (body.free != null) {
+              balance.push({
+                market: currency,
+                free: body.free[currency] == null ? 0 : body.free[currency],
+                frozen: body.frozen[currency] == null ? 0 : body.frozen[currency]
+              })
+            }
+          })
+          callback(null, balance);
+        }
       })
     })
   }, function (error, result) {
     logger.info("user balance ===> " + JSON.stringify(result));
     if (error) {
-
+      cb({});
     } else {
       var user_a = result[0];
       var user_b = result[1];
