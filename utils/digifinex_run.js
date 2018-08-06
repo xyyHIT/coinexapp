@@ -115,7 +115,7 @@ function dealOrder(deal_cb) {
             if (sell_body.code == 0) {
               result.sell_id = sell_body.order_id;
               result.seller = user;
-              callback(null, sell_body);
+              setTimeout(callback(null, sell_body), 2000);
             } else {
               callback("sell_error", sell_body);
             }
