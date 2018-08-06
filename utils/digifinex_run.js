@@ -9,7 +9,7 @@ var async = require('async');
 let currency_arr = ["usdt", "btc"];
 let market = 'usdt_btc';
 let deal_count = 0.03;
-let deal_usdt = 300;
+let deal_usdt = 250;
 
 // setInterval(intervalFunc, 1000 * 60 * 2);
 
@@ -387,11 +387,11 @@ function queryDealUser(cb) {
       var user_a_btc = parseFloat(user_a[1].free);
       var user_b_usdt = parseFloat(user_b[0].free);
       var user_b_btc = parseFloat(user_b[1].free);
-      if (user_a_usdt > deal_usdt && user_b_btc > deal_count) {
+      if (user_a_usdt > deal_usdt && user_b_btc >= deal_count) {
         cb({
           user: 0
         })
-      } else if (user_b_usdt > deal_usdt && user_a_btc > deal_count) {
+      } else if (user_b_usdt > deal_usdt && user_a_btc >= deal_count) {
         cb({
           user: 1
         })
