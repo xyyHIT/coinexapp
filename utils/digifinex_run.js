@@ -532,18 +532,23 @@ function cancelOpenOrder(user, cancel_cb) {
       form: post_body
     }
     request(options, (error, buy_response, body) => {
-      logger.info("open_orders ===> " + JSON.stringify(body));
-      if (body.code != null && body.code == 0 && body.orders != null && body.orders.length > 0) {
-        async.map(body.orders, function (order, callback) {
-          cancelOrder(user, order.order_id, (cancel) => {
-            logger.info(order.order_id + " cancel ===> " + JSON.stringify(cancel));
-            callback(null, cancel);
-          });
-        }, function (err, results) {
-          cancel_cb(results);
-        })
+      if (error) {
+        logger.info("open_orders error ===> " + JSON.stringify(error));
+        cancel_cb({});
       } else {
-        cancel_cb({})
+        logger.info("open_orders ===> " + JSON.stringify(body));
+        if (body.code != null && body.code == 0 && body.orders != null && body.orders.length > 0) {
+          async.map(body.orders, function (order, callback) {
+            cancelOrder(user, order.order_id, (cancel) => {
+              logger.info(order.order_id + " cancel ===> " + JSON.stringify(cancel));
+              callback(null, cancel);
+            });
+          }, function (err, results) {
+            cancel_cb(results);
+          })
+        } else {
+          cancel_cb({})
+        }
       }
     })
   })
