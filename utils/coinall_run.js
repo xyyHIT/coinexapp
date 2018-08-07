@@ -13,7 +13,7 @@ let market = 'OKB-USDT';
 let deal_count = 300;
 let deal_usdt = 1000;
 
-// setInterval(intervalFunc, 1000 * 60 * 1);
+// setInterval(intervalFunc, 1000 * 30);
 
 // function intervalFunc() {
 logger.info("开始运行 ===>");
@@ -62,8 +62,11 @@ function dealOrder(deal_cb) {
         }
       })
     },
+    // 先挂买单
     function (user, price, callback) {
       limitOrder(user, 'buy', price, deal_count, (buy_cb) => {
+        result.buy_order = buy_cb.order_id;
+        result.buyer = user;
         callback(null, user, price);
       })
     },
@@ -71,6 +74,8 @@ function dealOrder(deal_cb) {
       // 如果成功，马上换另一个用户挂卖单
       user = user == settings.coinall.length - 1 ? 0 : parseInt(user) + 1;
       limitOrder(user, 'sell', price, deal_count, (sell_cb) => {
+        result.sell_order = sell_cb.order_id;
+        result.seller = user;
         callback(null, user, price);
       })
     }
