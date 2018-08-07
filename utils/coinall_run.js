@@ -247,17 +247,19 @@ function cancelOrder(user, order_id, cb) {
 function queryDealUser(cb) {
   async.map(settings.coinall, function (user, callback) {
     let currTime = Date.now() / 1000;
-    var options = {
-      url: 'https://www.coinall.com/api/account/v3/wallet',
-      method: 'GET',
-      json: true
-    }
-    signature.coinall(currTime, 'GET', '/api/account/v3/wallet', user.secret_key, '', false, (cb) => {
-      options.headers = {
-        'OK-ACCESS-KEY': user.access_id,
-        'OK-ACCESS-SIGN': cb.signature,
-        'OK-ACCESS-TIMESTAMP': currTime,
-        'OK-ACCESS-PASSPHRASE': user.Passphrase
+    var path = '/api/spot/v3/accounts';
+    signature.coinall(currTime, 'GET', path, user.secret_key, '', false, (cb) => {
+      console.log(JSON.stringify(cb));
+      var options = {
+        url: API_URI + path,
+        headers: {
+          'OK-ACCESS-KEY': user.access_id,
+          'OK-ACCESS-SIGN': cb.signature,
+          'OK-ACCESS-TIMESTAMP': currTime,
+          'OK-ACCESS-PASSPHRASE': user.Passphrase
+        },
+        method: 'GET',
+        json: true
       }
       request(options, (err, response, body) => {
         if (err) {
