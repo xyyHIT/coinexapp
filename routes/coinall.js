@@ -42,7 +42,7 @@ router.get('/account/balance', (req, res, next) => {
     console.log(JSON.stringify(cb));
     var options = {
       url: API_URI + path,
-      headers = {
+      headers: {
         'OK-ACCESS-KEY': settings.coinall[0].access_id,
         'OK-ACCESS-SIGN': cb.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
