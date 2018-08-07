@@ -43,6 +43,33 @@ router.get('/account/balance', (req, res, next) => {
     var options = {
       url: API_URI + path,
       headers: {
+        'OK-ACCESS-KEY': settings.coinall[user].access_id,
+        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-TIMESTAMP': currTime,
+        'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
+      },
+      method: 'GET',
+      json: true
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+})
+// 获取币对depth
+router.get('/market/depth', (req, res, next) => {
+  let currTime = Date.now() / 1000;
+  var market = req.query.market;
+  var path = '/api/spot/v3/products/' + market + '/book';
+  signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (cb) => {
+    console.log(JSON.stringify(cb));
+    var options = {
+      url: API_URI + path,
+      headers: {
         'OK-ACCESS-KEY': settings.coinall[0].access_id,
         'OK-ACCESS-SIGN': cb.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
