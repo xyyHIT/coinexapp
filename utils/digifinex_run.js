@@ -8,8 +8,8 @@ var async = require('async');
 
 let currency_arr = ["usdt", "btc"];
 let market = 'usdt_btc';
-let deal_count = 0.03;
-let deal_usdt = 250;
+let deal_count = 0.02;
+let deal_usdt = 200;
 
 setInterval(intervalFunc, 1000 * 60 * 2);
 
@@ -288,10 +288,10 @@ function queryOrder(user, order_id, cb) {
   })
 }
 
-function limitOrder(user, price, type, order_cb) {
+function limitOrder(user, type, price, amount, order_cb) {
   let currTime = parseInt(Date.now() / 1000);
   let post_order = {
-    amount: deal_count, //下单数量 
+    amount: amount, //下单数量 
     apiKey: settings.digifinex[user].access_id,
     apiSecret: settings.digifinex[user].secret_key,
     price: price,
@@ -408,62 +408,48 @@ function queryDealUser(cb) {
             // 卖掉b的0.03 btc
             sell_user = 1;
           }
-          async.waterfall([
-            function (market_sell_cb) {
-              queryNowPrice(sell_user, 'sell', (now_price) => {
-                logger.info("sell now_price ===> " + JSON.stringify(now_price));
-                market_sell_cb(null, now_price);
-              })
-            },
-            function (now_price, market_sell_cb) {
-              if (now_price > 0) {
-                limitOrder(sell_user, now_price, 'sell', (order_cb) => {
-                  market_sell_cb(null, order_cb);
-                })
-              } else {
-                market_sell_cb('没找到合适的卖价', order_cb);
-              }
-            }
-          ], function (err, sell_result) {
-            logger.log("market_sell result ===> " + JSON.stringify(sell_result));
-            if (err) {
-              cb({});
-            } else {
-              cb({
-                user: sell_user
-              })
-            }
-          })
+          changeBalance(sell_user, 'sell', deal_count, (market_change_cb) => {
+            cb(market_change_cb);
+          });
         } else if (user_a_usdt > deal_usdt || user_b_usdt > deal_usdt) {
           let buy_user = 0;
           if (user_b_usdt > user_a_usdt) {
             buy_user = 1;
           }
-          async.waterfall([
-            function (market_buy_cb) {
-              queryNowPrice(buy_user, 'buy', (now_price) => {
-                logger.info("buy now_price ===> " + JSON.stringify(now_price));
-                market_buy_cb(null, now_price);
+          changeBalance(buy_user, 'buy', deal_count, (market_change_cb) => {
+            cb(market_change_cb);
+          });
+        } else if (user_a_btc < deal_count && user_a_usdt < deal_usdt && user_b_btc < deal_count && user_b_usdt < deal_usdt) {
+          var sell_user = 0;
+          var buy_user = 1;
+          if (user_a_btc > user_b_btc) {
+            sell_user = 1;
+            buy_user = 0;
+          }
+          // a 用户btc较多，a保留btc，b保留usdt
+          async.parallel([
+            // a 把usdt换成btc,买入btc
+            function (change_cb) {
+              changeBalance(buy_user, 'buy', deal_count - user_a_btc, (market_change_cb) => {
+                if (market_change_cb != null && market_change_cb.user != null) {
+                  change_cb(null, market_change_cb);
+                } else {
+                  change_cb('market_change_cb buy error', market_change_cb);
+                }
               })
             },
-            function (now_price, market_buy_cb) {
-              if (now_price > 0) {
-                limitOrder(buy_user, now_price, 'buy', (order_cb) => {
-                  market_buy_cb(null, order_cb);
-                })
-              } else {
-                market_buy_cb('没找到合适的买价', order_cb);
-              }
+            // b 把btc换成usdt,卖出btc
+            function (change_cb) {
+              changeBalance(sell_user, 'sell', user_b_btc, (market_change_cb) => {
+                if (market_change_cb != null && market_change_cb.user != null) {
+                  change_cb(null, market_change_cb);
+                } else {
+                  change_cb('market_change_cb sell error', market_change_cb);
+                }
+              })
             }
-          ], function (err, buy_result) {
-            logger.log("market_buy result ===> " + JSON.stringify(buy_result));
-            if (err) {
-              cb({});
-            } else {
-              cb({
-                user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
-              });
-            }
+          ], function (change_err, change_results) {
+            cb(change_results[0]);
           })
         } else {
           cb({});
@@ -473,7 +459,7 @@ function queryDealUser(cb) {
   })
 }
 
-function queryNowPrice(user, type, now_price_cb) {
+function queryNowPrice(user, type, amount, now_price_cb) {
   var currTime = parseInt(Date.now() / 1000);
   var params = {
     apiKey: settings.digifinex[user].access_id,
@@ -498,7 +484,7 @@ function queryNowPrice(user, type, now_price_cb) {
           let length = body.asks.length;
           var buy_price = 0;
           for (let index = length - 1; index >= 0; index--) {
-            if (body.asks[index][1] > deal_count) {
+            if (body.asks[index][1] > amount) {
               buy_price = body.asks[index][0];
               break;
             }
@@ -509,7 +495,7 @@ function queryNowPrice(user, type, now_price_cb) {
           let length = body.bids.length;
           var sell_price = 0;
           for (let index = 0; index < length; index++) {
-            if (body.bids[index][1] > deal_count) {
+            if (body.bids[index][1] > amount) {
               sell_price = body.bids[index][0];
               break;
             }
@@ -557,5 +543,34 @@ function cancelOpenOrder(user, cancel_cb) {
         }
       }
     })
+  })
+}
+// 查找合适的市场价交易
+function changeBalance(user, type, amount, market_change_cb) {
+  async.waterfall([
+    function (market_order_cb) {
+      queryNowPrice(user, type, amount, (now_price) => {
+        logger.info("buy now_price ===> " + JSON.stringify(now_price));
+        market_order_cb(null, now_price);
+      })
+    },
+    function (now_price, market_order_cb) {
+      if (now_price > 0) {
+        limitOrder(user, type, now_price, amount, (order_cb) => {
+          market_order_cb(null, order_cb);
+        })
+      } else {
+        market_order_cb('没找到合适的买价', order_cb);
+      }
+    }
+  ], function (err, buy_result) {
+    logger.log("market_order result ===> " + JSON.stringify(buy_result));
+    if (err) {
+      market_change_cb({});
+    } else {
+      market_change_cb({
+        user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
+      });
+    }
   })
 }
