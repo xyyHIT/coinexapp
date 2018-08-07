@@ -244,10 +244,10 @@ function queryDealUser(cb) {
     }
     signature.coinall(currTime, 'GET', '/api/account/v3/wallet', user.secret_key, '', false, (cb) => {
       options.headers = {
-        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-KEY': user.access_id,
         'OK-ACCESS-SIGN': cb.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
-        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+        'OK-ACCESS-PASSPHRASE': user.Passphrase
       }
       request(options, (err, response, body) => {
         if (err) {
