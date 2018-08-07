@@ -316,6 +316,12 @@ router.post('/placeOrder', (req, res, next) => {
   })
 })
 
+router.get('/matchPrice', (req, res, next) => {
+  getMatchPrice(req.query.user, req.query.market, (price_cb) => {
+    res.json(price_cb);
+  })
+})
+
 function getMatchPrice(user, market, price_cb) {
   var currTime = Date.now() / 1000;
   async.waterfall([
