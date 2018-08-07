@@ -64,7 +64,7 @@ router.get('/account/balance', (req, res, next) => {
 router.get('/market/depth', (req, res, next) => {
   let currTime = Date.now() / 1000;
   var market = req.query.market;
-  var path = '/api/spot/v3/products/' + market + '/book?depth=10';
+  var path = '/api/spot/v3/products/' + market + '/book?size=10';
   signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (cb) => {
     console.log(JSON.stringify(cb));
     var options = {
