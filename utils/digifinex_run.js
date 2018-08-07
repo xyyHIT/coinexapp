@@ -568,9 +568,16 @@ function changeBalance(user, type, amount, market_change_cb) {
     if (err) {
       market_change_cb({});
     } else {
-      market_change_cb({
-        user: buy_user == settings.digifinex.length - 1 ? 0 : buy_user + 1
-      });
+      if (type == 'sell') {
+        market_change_cb({
+          user: user
+        });
+      } else if (type == 'buy') {
+        market_change_cb({
+          user: user == settings.digifinex.length - 1 ? 0 : user + 1
+        });
+      }
+
     }
   })
 }

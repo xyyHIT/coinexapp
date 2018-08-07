@@ -28,7 +28,6 @@ let zbg = function (zbg_user, currTime, params, isJSON, cb) {
     //str.replace(new RegExp('&','g'),'');
   }
   str += zbg_user.secret_key;
-  console.log("str ===> " + str);
   cb({
     signature: md5(str).toLowerCase()
   });
@@ -55,7 +54,6 @@ let coinall = function (currTime, method, request_path, secret_key, params, isJS
     //str.replace(new RegExp('=','g'),'');
     //str.replace(new RegExp('&','g'),'');
   }
-  console.log("str ===> " + str);
   const hash = crypto.createHmac('sha256', secret_key)
     .update(str)
     .digest('base64');

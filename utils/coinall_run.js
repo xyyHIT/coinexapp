@@ -198,12 +198,21 @@ function marketOrder(user, type, amount, order_cb) {
     request(options, (err, response, order_body) => {
       logger.info("marketOrder ===> " + JSON.stringify(order_body));
       if (err) {
-        order_cb(err);
+        order_cb({});
       } else {
         if (order_body.code == 0) {
-          order_cb(order_body);
+          if (type == 'sell') {
+            order_cb({
+              user: user
+            });
+          } else if (type == 'buy') {
+            order_cb({
+              user: user == settings.digifinex.length - 1 ? 0 : user + 1
+            });
+          }
+
         } else {
-          order_cb(order_body);
+          order_cb({});
         }
       }
     })
@@ -328,7 +337,7 @@ function queryDealUser(cb) {
             },
             // b 把okb换成usdt,卖出okb
             function (change_cb) {
-              marketOrder(sell_user, 'sell', user_b_okb, (market_change_cb) => {
+              marketOrder(sell_user, 'sell', 0.0002, (market_change_cb) => {
                 if (market_change_cb != null && market_change_cb.user != null) {
                   change_cb(null, market_change_cb);
                 } else {
