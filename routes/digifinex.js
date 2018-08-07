@@ -358,6 +358,7 @@ function getMatchPrice(user, market, price_cb) {
           qs: params
         }
         request(options, (err, response, body) => {
+          console.log("depth ===> " + JSON.stringify(body));
           if (err) {
             price_cb({
               success: false
