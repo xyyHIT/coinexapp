@@ -12,7 +12,7 @@ router.get('/account/wallet', (req, res, next) => {
     method: 'GET',
     json: true
   }
-  signature.coinall(currTime, options.method, options.url, settings.coinall[0].secret_key, '', false, (cb) => {
+  signature.coinall(currTime, 'GET', '/api/account/v3/wallet', settings.coinall[0].secret_key, '', false, (cb) => {
     console.log(JSON.stringify(cb));
     options.headers = {
       'OK-ACCESS-KEY': settings.coinall[0].access_id,
