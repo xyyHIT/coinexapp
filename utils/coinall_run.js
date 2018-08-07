@@ -26,17 +26,17 @@ dealOrder((cb) => {
 function dealOrder(deal_cb) {
   var result = {};
   async.waterfall([
-    // 取消所有冻结的订单
-    // function (callback) {
-    //   async.map([0, 1], function (user, cancel_callback) {
-    //     cancelOpenOrder(user, (cancel) => {
-    //       cancel_callback(null, cancel);
-    //     })
-    //   }, function (error, results) {
-    //     logger.info('取消锁定的订单 ===> ' + JSON.stringify(results));
-    //     callback(null);
-    //   })
-    // },
+    //取消所有冻结的订单
+    function (callback) {
+      async.map([0, 1], function (user, cancel_callback) {
+        cancelOpenOrder(user, (cancel) => {
+          cancel_callback(null, cancel);
+        })
+      }, function (error, results) {
+        logger.info('取消锁定的订单 ===> ' + JSON.stringify(results));
+        callback(null);
+      })
+    },
     // 获取合适价格
     function (callback) {
       getMatchPrice((price) => {
