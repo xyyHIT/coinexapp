@@ -140,12 +140,12 @@ function limitOrder(user, type, price, amount, order_cb) {
     price: price
   }
   let path = '/api/spot/v3/orders';
-  signature.coinall(currTime, 'POST', path, settings.coinall[user].secret_key, params, true, (cb) => {
+  signature.coinall(currTime, 'POST', path, settings.coinall[user].secret_key, params, true, (sign) => {
     var options = {
       url: API_URI + path,
       headers: {
         'OK-ACCESS-KEY': settings.coinall[user].access_id,
-        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
         'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
       },
@@ -182,12 +182,12 @@ function marketOrder(user, type, amount, order_cb) {
   }
   logger.info("marketOrder params ===>" + JSON.stringify(params));
   let path = '/api/spot/v3/orders';
-  signature.coinall(currTime, 'POST', path, settings.coinall[user].secret_key, params, true, (cb) => {
+  signature.coinall(currTime, 'POST', path, settings.coinall[user].secret_key, params, true, (sign) => {
     var options = {
       url: API_URI + path,
       headers: {
         'OK-ACCESS-KEY': settings.coinall[0].access_id,
-        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
         'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
       },
@@ -225,12 +225,12 @@ function cancelOrder(user, order_id, cb) {
     product_id: market,
   }
   let path = '/api/spot/v3/orders/' + order_id;
-  signature.coinall(currTime, 'DELETE', path, settings.coinall[user].secret_key, params, true, (cb) => {
+  signature.coinall(currTime, 'DELETE', path, settings.coinall[user].secret_key, params, true, (sign) => {
     let options = {
       url: API_URI + path,
       headers: {
         'OK-ACCESS-KEY': settings.coinall[user].access_id,
-        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
         'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
       },
@@ -248,13 +248,12 @@ function queryDealUser(cb) {
   async.map(settings.coinall, function (user, callback) {
     let currTime = Date.now() / 1000;
     var path = '/api/spot/v3/accounts';
-    signature.coinall(currTime, 'GET', path, user.secret_key, '', false, (cb) => {
-      console.log(JSON.stringify(cb));
+    signature.coinall(currTime, 'GET', path, user.secret_key, '', false, (sign) => {
       var options = {
         url: API_URI + path,
         headers: {
           'OK-ACCESS-KEY': user.access_id,
-          'OK-ACCESS-SIGN': cb.signature,
+          'OK-ACCESS-SIGN': sign.signature,
           'OK-ACCESS-TIMESTAMP': currTime,
           'OK-ACCESS-PASSPHRASE': user.Passphrase
         },
