@@ -158,7 +158,7 @@ function limitOrder(user, type, price, amount, order_cb) {
       if (err) {
         order_cb(err);
       } else {
-        if (order_body.code == 0) {
+        if (order_body.result) {
           order_cb(order_body);
         } else {
           order_cb(order_body);
