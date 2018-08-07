@@ -64,7 +64,7 @@ router.get('/account/balance', (req, res, next) => {
 router.get('/market/depth', (req, res, next) => {
   let currTime = Date.now() / 1000;
   var market = req.query.market;
-  var path = '/api/spot/v3/products/' + market + '/book';
+  var path = '/api/spot/v3/products/' + market + '/book?depth=10';
   signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (cb) => {
     console.log(JSON.stringify(cb));
     var options = {
@@ -77,6 +77,45 @@ router.get('/market/depth', (req, res, next) => {
       },
       method: 'GET',
       json: true
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+})
+
+// 下单
+router.get('/market/order', (req, res, next) => {
+  let currTime = Date.now() / 1000;
+  let params = {
+    market: req.query.market,
+    type: req.query.type, // 	limit or market
+    side: req.query.side, // buy or sell
+    size: req.query.size
+  }
+  if (params.type == 'limit') {
+    params.price = req.query.price
+  } else if (params.type == 'market') {
+    params.funds = req.query.funds
+  }
+  let path = '/api/spot/v3/orders';
+  signature.coinall(currTime, 'POST', path, settings.coinall[0].secret_key, params, true, (cb) => {
+    console.log(JSON.stringify(cb));
+    var options = {
+      url: API_URI + path,
+      headers: {
+        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-TIMESTAMP': currTime,
+        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+      },
+      method: 'POST',
+      json: true,
+      body: params
     }
     request(options, (err, response, body) => {
       if (err) {
