@@ -127,4 +127,63 @@ router.get('/market/order', (req, res, next) => {
   })
 })
 
+// 撤销订单
+router.get('/market/cancel', (req, res, next) => {
+  let currTime = Date.now() / 1000;
+  let params = {
+    product_id: req.query.market,
+  }
+  let path = '/api/spot/v3/orders/' + req.query.order_id;
+  signature.coinall(currTime, 'DELETE', path, settings.coinall[0].secret_key, params, true, (cb) => {
+    console.log(JSON.stringify(cb));
+    var options = {
+      url: API_URI + path,
+      headers: {
+        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-TIMESTAMP': currTime,
+        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+      },
+      method: 'DELETE',
+      json: true,
+      body: params
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+})
+
+// 获取未完成的订单
+router.get('/market/pending', (req, res, next) => {
+  let currTime = Date.now() / 1000;
+  let path = '/api/spot/v3/orders_pending';
+  signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (cb) => {
+    console.log(JSON.stringify(cb));
+    var options = {
+      url: API_URI + path,
+      headers: {
+        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-TIMESTAMP': currTime,
+        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+      },
+      method: 'GET',
+      json: true,
+      body: params
+    }
+    request(options, (err, response, body) => {
+      if (err) {
+
+      } else {
+        res.json(body);
+      }
+    })
+  })
+})
+
 module.exports = router;
