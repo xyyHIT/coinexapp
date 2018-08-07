@@ -93,7 +93,6 @@ function getMatchPrice(price_cb) {
   let currTime = Date.now() / 1000;
   var path = '/api/spot/v3/products/' + market + '/book?size=10';
   signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (sign) => {
-    params.sign = signature.signature
     var options = {
       url: API_URI + path,
       headers: {
@@ -368,8 +367,8 @@ function cancelOpenOrder(user, cancel_cb) {
         cancel_cb({});
       } else {
         logger.info("open_orders ===> " + JSON.stringify(body));
-        if (body.code != null && body.code == 0 && body.orders != null && body.orders.length > 0) {
-          async.map(body.orders, function (order, callback) {
+        if (body.length > 0) {
+          async.map(body, function (order, callback) {
             cancelOrder(user, order.order_id, (cancel) => {
               logger.info(order.order_id + " cancel ===> " + JSON.stringify(cancel));
               callback(null, cancel);
