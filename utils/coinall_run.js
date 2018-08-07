@@ -110,9 +110,9 @@ function getMatchPrice(price_cb) {
           success: false
         })
       } else {
-        var min_sell = body.asks[0][0];
-        var max_buy = body.bids[0][0];
-        var sub = min_sell - max_buy;
+        var min_sell = parseFloat(body.asks[0][0]);
+        var max_buy = parseFloat(body.bids[0][0]);
+        var sub = parseFloat(min_sell - max_buy);
         if (sub > 2 * MIN_AMOUNT) {
           var price = (max_buy + sub / 2).toFixed(4);
           logger.info(min_sell + " " + price + " " + max_buy);
