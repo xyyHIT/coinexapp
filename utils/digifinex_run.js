@@ -11,14 +11,14 @@ let market = 'usdt_btc';
 let deal_count = 0.02;
 let deal_usdt = 200;
 
-// setInterval(intervalFunc, 1000 * 60 * 1);
+setInterval(intervalFunc, 1000 * 60 * 1);
 
-// function intervalFunc() {
-logger.info("开始运行 ===>");
-dealOrder((cb) => {
-  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-})
-// }
+function intervalFunc() {
+  logger.info("开始运行 ===>");
+  dealOrder((cb) => {
+    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+  })
+}
 
 
 function dealOrder(deal_cb) {
