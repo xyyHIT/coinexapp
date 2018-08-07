@@ -5,15 +5,26 @@ module.exports = {
     // access_id: '6A53206AC2D04AA2BBC889F750FD67B8',
     // secret_key: 'FFA46235D8A74E50A55613C59680A3D73153238727BE575D',
   },
+  // coinall: [{
+  //     access_id: 'adc77266-f30b-49ef-af25-127266b21f0c',
+  //     secret_key: '2BCF126ECCC7584A3CF8C04A1E764CF5',
+  //     Passphrase: 'play4u.com'
+  //   },
+  //   {
+  //     access_id: 'adc77266-f30b-49ef-af25-127266b21f0c',
+  //     secret_key: '2BCF126ECCC7584A3CF8C04A1E764CF5',
+  //     Passphrase: 'play4u.com'
+  //   }
+  // ],
   coinall: [{
-      access_id: 'adc77266-f30b-49ef-af25-127266b21f0c',
-      secret_key: '2BCF126ECCC7584A3CF8C04A1E764CF5',
-      Passphrase: 'play4u.com'
+      access_id: 'cc5c7876-4583-48d6-bf80-05309e84aeb6',
+      secret_key: '3B5D2F72AD8E29DD32961D2A33568752',
+      Passphrase: '19830701'
     },
     {
-      access_id: 'adc77266-f30b-49ef-af25-127266b21f0c',
-      secret_key: '2BCF126ECCC7584A3CF8C04A1E764CF5',
-      Passphrase: 'play4u.com'
+      access_id: '9f5503ad-c7f5-44a5-8c88-e235fb17b5c3',
+      secret_key: '20BF2B89103F87A788974941C5E29730',
+      Passphrase: '20141029'
     }
   ],
   log4js: {

@@ -154,7 +154,7 @@ function limitOrder(user, type, price, amount, order_cb) {
       body: params
     }
     request(options, (err, response, order_body) => {
-      logger.info("post_order ===> " + JSON.stringify(order_body));
+      logger.info("limitOrder ===> " + JSON.stringify(order_body));
       if (err) {
         order_cb(err);
       } else {
@@ -195,7 +195,7 @@ function marketOrder(user, type, amount, order_cb) {
       body: params
     }
     request(options, (err, response, order_body) => {
-      logger.info("post_order ===> " + JSON.stringify(order_body));
+      logger.info("marketOrder ===> " + JSON.stringify(order_body));
       if (err) {
         order_cb(err);
       } else {
