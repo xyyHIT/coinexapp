@@ -114,7 +114,7 @@ function getMatchPrice(price_cb) {
         var max_buy = body.bids[0][0];
         var sub = min_sell - max_buy;
         if (sub > 2 * MIN_AMOUNT) {
-          var price = parseFloat(max_buy + sub / 2).toFixed(4);
+          var price = (max_buy + sub / 2).toFixed(4);
           logger.info(min_sell + " " + price + " " + max_buy);
           price_cb({
             success: true,
