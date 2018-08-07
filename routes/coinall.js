@@ -92,8 +92,8 @@ router.get('/market/depth', (req, res, next) => {
 router.get('/market/order', (req, res, next) => {
   let currTime = Date.now() / 1000;
   let params = {
-    market: req.query.market,
-    type: req.query.type, // 	limit or market
+    product_id: req.query.market,
+    type: req.query.type ? req.query.type : 'limit', // 	limit or market
     side: req.query.side, // buy or sell
     size: req.query.size
   }
