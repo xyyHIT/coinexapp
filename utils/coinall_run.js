@@ -10,8 +10,8 @@ let API_URI = 'https://www.coinall.com';
 let MIN_AMOUNT = 0.0001;
 let currency_arr = ["USDT", "OKB"];
 let market = 'OKB-USDT';
-let deal_count = 0.02;
-let deal_usdt = 200;
+let deal_count = 300;
+let deal_usdt = 1000;
 
 // setInterval(intervalFunc, 1000 * 60 * 1);
 
@@ -144,10 +144,10 @@ function limitOrder(user, type, price, amount, order_cb) {
     var options = {
       url: API_URI + path,
       headers: {
-        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-KEY': settings.coinall[user].access_id,
         'OK-ACCESS-SIGN': cb.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
-        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+        'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
       },
       method: 'POST',
       json: true,
