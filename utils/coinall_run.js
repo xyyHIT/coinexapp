@@ -13,14 +13,14 @@ let market = 'OKB-USDT';
 let deal_count = 0.02;
 let deal_usdt = 200;
 
-setInterval(intervalFunc, 1000 * 60 * 1);
+// setInterval(intervalFunc, 1000 * 60 * 1);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
@@ -351,18 +351,16 @@ function cancelOpenOrder(user, cancel_cb) {
   let currTime = Date.now() / 1000;
   let path = '/api/spot/v3/orders_pending';
   signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (sign) => {
-    post_body.sign = sign.signature;
     let options = {
       url: API_URI + path,
       headers: {
         'OK-ACCESS-KEY': settings.coinall[0].access_id,
-        'OK-ACCESS-SIGN': cb.signature,
+        'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
         'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
       },
       method: 'GET',
-      json: true,
-      body: params
+      json: true
     }
     request(options, (error, buy_response, body) => {
       if (error) {
