@@ -180,6 +180,7 @@ function marketOrder(user, type, amount, order_cb) {
   } else if (type == 'sell') {
     params.size = amount;
   }
+  logger.info("marketOrder params ===>" + JSON.stringify(params));
   let path = '/api/spot/v3/orders';
   signature.coinall(currTime, 'POST', path, settings.coinall[user].secret_key, params, true, (cb) => {
     var options = {
