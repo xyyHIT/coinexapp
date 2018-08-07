@@ -6,12 +6,14 @@ module.exports = {
     // secret_key: 'FFA46235D8A74E50A55613C59680A3D73153238727BE575D',
   },
   coinall: [{
-      access_id: '8df72a1e-c076-4b8d-932e-0e77372c69df',
-      secret_key: '78B458E222D65CE77CB24C834C407863'
+      access_id: 'adc77266-f30b-49ef-af25-127266b21f0c',
+      secret_key: '2BCF126ECCC7584A3CF8C04A1E764CF5',
+      Passphrase: 'play4u.com'
     },
     {
       access_id: '4ce0edd6-b86c-4648-a108-3c9a68324fb3',
-      secret_key: '64010D9E56EC6D52A09DA42032AD42F8'
+      secret_key: '64010D9E56EC6D52A09DA42032AD42F8',
+      Passphrase: 'play4u.com'
     }
   ],
   log4js: {

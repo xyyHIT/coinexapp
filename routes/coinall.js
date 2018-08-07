@@ -9,17 +9,16 @@ router.get('/account/wallet', (req, res, next) => {
   let currTime = Date.now() / 1000;
   var options = {
     url: 'https://www.coinall.com/api/account/v3/wallet',
-    method: 'get',
+    method: 'GET',
     json: true
   }
-  signature.coinall(currTime, options.method, options.url, settings.coinall[1].secret_key, '', false, (cb) => {
+  signature.coinall(currTime, options.method, options.url, settings.coinall[0].secret_key, '', false, (cb) => {
     console.log(JSON.stringify(cb));
     options.headers = {
-      'Content-Type': 'application/json',
-      'OK-ACCESS-KEY': settings.coinall[1].access_id,
+      'OK-ACCESS-KEY': settings.coinall[0].access_id,
       'OK-ACCESS-SIGN': cb.signature,
       'OK-ACCESS-TIMESTAMP': currTime,
-      'OK-ACCESS-PASSPHRASE': ''
+      'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
     }
     request(options, (err, response, body) => {
       if (err) {
@@ -42,6 +41,17 @@ function getLocalTime(i) {
   //得到现在的格林尼治时间
   var utcTime = len + offset;
   return utcTime + 3600000 * i;
+}
+
+function getServerTime(currTime) {
+  var options = {
+    url: 'https://www.coinall.com/api/general/v3/time',
+    method: 'GET',
+    json: true
+  }
+  request(options, (err, response, body) => {
+    currTime(body.epoch);
+  })
 }
 
 module.exports = router;
