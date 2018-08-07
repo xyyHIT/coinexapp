@@ -27,16 +27,16 @@ function dealOrder(deal_cb) {
   var result = {};
   async.waterfall([
     // 取消所有冻结的订单
-    function (callback) {
-      async.map([0, 1], function (user, cancel_callback) {
-        cancelOpenOrder(user, (cancel) => {
-          cancel_callback(null, cancel);
-        })
-      }, function (error, results) {
-        logger.info('取消锁定的订单 ===> ' + JSON.stringify(results));
-        callback(null);
-      })
-    },
+    // function (callback) {
+    //   async.map([0, 1], function (user, cancel_callback) {
+    //     cancelOpenOrder(user, (cancel) => {
+    //       cancel_callback(null, cancel);
+    //     })
+    //   }, function (error, results) {
+    //     logger.info('取消锁定的订单 ===> ' + JSON.stringify(results));
+    //     callback(null);
+    //   })
+    // },
     // 获取合适价格
     function (callback) {
       getMatchPrice((price) => {
@@ -215,7 +215,7 @@ function cancelOrder(user, order_id, cb) {
     product_id: market,
   }
   let path = '/api/spot/v3/orders/' + order_id;
-  signature.coinall(currTime, 'DELETE', path, settings.coinall[user].secret_key, params, true, (sign) => {
+  signature.coinall(currTime, 'DELETE', path, settings.coinall[user].secret_key, params, true, (cb) => {
     let options = {
       url: API_URI + path,
       headers: {
@@ -228,8 +228,8 @@ function cancelOrder(user, order_id, cb) {
       json: true,
       body: params
     }
-    request(options, (error, buy_response, sell_body) => {
-      cb(sell_body);
+    request(options, (error, buy_response, body) => {
+      cb(body);
     })
   })
 }
@@ -349,14 +349,14 @@ function queryDealUser(cb) {
 function cancelOpenOrder(user, cancel_cb) {
   let currTime = Date.now() / 1000;
   let path = '/api/spot/v3/orders_pending';
-  signature.coinall(currTime, 'GET', path, settings.coinall[0].secret_key, '', false, (sign) => {
+  signature.coinall(currTime, 'GET', path, settings.coinall[user].secret_key, '', false, (sign) => {
     let options = {
       url: API_URI + path,
       headers: {
-        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-KEY': settings.coinall[user].access_id,
         'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
-        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+        'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
       },
       method: 'GET',
       json: true
