@@ -306,12 +306,12 @@ function queryDealUser(cb) {
       } else {
         if (user_a_usdt > deal_usdt && user_b_okb < deal_count) {
           // b 买入okb
-          marketOrder(1, 'buy', deal_count - user_b_okb, (order_cb) => {
+          marketOrder(1, 'buy', (deal_count - user_b_okb).toFixed(4), (order_cb) => {
             cb(order_cb);
           })
         } else if (user_b_usdt > deal_usdt && user_a_okb < deal_count) {
           // a 买入okb
-          marketOrder(0, 'buy', deal_count - user_a_okb, (order_cb) => {
+          marketOrder(0, 'buy', (deal_count - user_a_okb).toFixed(4), (order_cb) => {
             cb(order_cb);
           })
         }
