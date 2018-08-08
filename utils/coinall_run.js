@@ -304,69 +304,69 @@ function queryDealUser(cb) {
           user: 1
         })
       } else {
-        // if (user_a_usdt > deal_usdt && user_b_okb < deal_count) {
-        //   // b 买入okb
-        //   marketOrder(1, 'buy', deal_count - user_b_okb, (order_cb) => {
+        if (user_a_usdt > deal_usdt && user_b_okb < deal_count) {
+          // b 买入okb
+          marketOrder(1, 'buy', deal_count - user_b_okb, (order_cb) => {
+            cb(order_cb);
+          })
+        } else if (user_b_usdt > deal_usdt && user_a_okb < deal_count) {
+          // a 买入okb
+          marketOrder(0, 'buy', deal_count - user_a_okb, (order_cb) => {
+            cb(order_cb);
+          })
+        }
+        // if (user_a_okb > deal_count || user_b_okb > deal_count) {
+        //   let sell_user = 0;
+        //   if (user_a_okb < user_b_okb) {
+        //     // 卖掉b的 okb
+        //     sell_user = 1;
+        //   }
+        //   marketOrder(sell_user, 'sell', deal_count, (order_cb) => {
         //     cb(order_cb);
         //   })
-        // } else if (user_b_usdt > deal_usdt && user_a_okb < deal_count) {
-        //   // a 买入okb
-        //   marketOrder(0, 'buy', deal_count - user_a_okb, (order_cb) => {
+        // } else if (user_a_usdt > deal_usdt || user_b_usdt > deal_usdt) {
+        //   let buy_user = 0;
+        //   if (user_b_usdt > user_a_usdt) {
+        //     buy_user = 1;
+        //   }
+        //   marketOrder(buy_user, 'buy', deal_count, (order_cb) => {
         //     cb(order_cb);
+        //   })
+        // } else {
+        //   var sell_user = 0;
+        //   var buy_user = 1;
+        //   var sell_okb = user_a_okb;
+        //   if (user_a_okb > user_b_okb) {
+        //     sell_okb = user_b_okb
+        //     sell_user = 1;
+        //     buy_user = 0;
+        //   }
+        //   // a 用户okb较多，a保留okb，b保留usdt
+        //   async.parallel([
+        //     // a 把usdt换成okb,买入okb
+        //     function (change_cb) {
+        //       marketOrder(buy_user, 'buy', deal_count - sell_okb, (market_change_cb) => {
+        //         if (market_change_cb != null && market_change_cb.user != null) {
+        //           change_cb(null, market_change_cb);
+        //         } else {
+        //           change_cb('market_change_cb buy error', market_change_cb);
+        //         }
+        //       })
+        //     },
+        //     // b 把okb换成usdt,卖出okb
+        //     function (change_cb) {
+        //       marketOrder(sell_user, 'sell', user_b_okb, (market_change_cb) => {
+        //         if (market_change_cb != null && market_change_cb.user != null) {
+        //           change_cb(null, market_change_cb);
+        //         } else {
+        //           change_cb('market_change_cb sell error', market_change_cb);
+        //         }
+        //       });
+        //     }
+        //   ], function (change_err, change_results) {
+        //     cb(change_results[0]);
         //   })
         // }
-        if (user_a_okb > deal_count || user_b_okb > deal_count) {
-          let sell_user = 0;
-          if (user_a_okb < user_b_okb) {
-            // 卖掉b的0.03 okb
-            sell_user = 1;
-          }
-          marketOrder(sell_user, 'sell', deal_count, (order_cb) => {
-            cb(order_cb);
-          })
-        } else if (user_a_usdt > deal_usdt || user_b_usdt > deal_usdt) {
-          let buy_user = 0;
-          if (user_b_usdt > user_a_usdt) {
-            buy_user = 1;
-          }
-          marketOrder(buy_user, 'buy', deal_count, (order_cb) => {
-            cb(order_cb);
-          })
-        } else if (user_a_okb < deal_count && user_a_usdt < deal_usdt && user_b_okb < deal_count && user_b_usdt < deal_usdt) {
-          var sell_user = 0;
-          var buy_user = 1;
-          if (user_a_okb > user_b_okb) {
-            sell_user = 1;
-            buy_user = 0;
-          }
-          // a 用户okb较多，a保留okb，b保留usdt
-          async.parallel([
-            // a 把usdt换成okb,买入okb
-            function (change_cb) {
-              marketOrder(buy_user, 'buy', deal_count - user_a_okb, (market_change_cb) => {
-                if (market_change_cb != null && market_change_cb.user != null) {
-                  change_cb(null, market_change_cb);
-                } else {
-                  change_cb('market_change_cb buy error', market_change_cb);
-                }
-              })
-            },
-            // b 把okb换成usdt,卖出okb
-            function (change_cb) {
-              marketOrder(sell_user, 'sell', user_b_okb, (market_change_cb) => {
-                if (market_change_cb != null && market_change_cb.user != null) {
-                  change_cb(null, market_change_cb);
-                } else {
-                  change_cb('market_change_cb sell error', market_change_cb);
-                }
-              });
-            }
-          ], function (change_err, change_results) {
-            cb(change_results[0]);
-          })
-        } else {
-          cb({});
-        }
       }
     }
   })
