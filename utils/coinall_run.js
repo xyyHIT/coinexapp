@@ -13,14 +13,14 @@ let market = 'OKB-USDT';
 let deal_count = 300;
 let deal_usdt = 1000;
 
-setInterval(intervalFunc, 1000 * 30);
+// setInterval(intervalFunc, 1000 * 30);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
@@ -304,6 +304,17 @@ function queryDealUser(cb) {
           user: 1
         })
       } else {
+        // if (user_a_usdt > deal_usdt && user_b_okb < deal_count) {
+        //   // b 买入okb
+        //   marketOrder(1, 'buy', deal_count - user_b_okb, (order_cb) => {
+        //     cb(order_cb);
+        //   })
+        // } else if (user_b_usdt > deal_usdt && user_a_okb < deal_count) {
+        //   // a 买入okb
+        //   marketOrder(0, 'buy', deal_count - user_a_okb, (order_cb) => {
+        //     cb(order_cb);
+        //   })
+        // }
         if (user_a_okb > deal_count || user_b_okb > deal_count) {
           let sell_user = 0;
           if (user_a_okb < user_b_okb) {
@@ -342,7 +353,7 @@ function queryDealUser(cb) {
             },
             // b 把okb换成usdt,卖出okb
             function (change_cb) {
-              marketOrder(sell_user, 'sell', 0.0002, (market_change_cb) => {
+              marketOrder(sell_user, 'sell', user_b_okb, (market_change_cb) => {
                 if (market_change_cb != null && market_change_cb.user != null) {
                   change_cb(null, market_change_cb);
                 } else {
