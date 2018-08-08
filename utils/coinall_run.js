@@ -191,10 +191,10 @@ function marketOrder(user, type, amount, order_cb) {
     var options = {
       url: API_URI + path,
       headers: {
-        'OK-ACCESS-KEY': settings.coinall[0].access_id,
+        'OK-ACCESS-KEY': settings.coinall[user].access_id,
         'OK-ACCESS-SIGN': sign.signature,
         'OK-ACCESS-TIMESTAMP': currTime,
-        'OK-ACCESS-PASSPHRASE': settings.coinall[0].Passphrase
+        'OK-ACCESS-PASSPHRASE': settings.coinall[user].Passphrase
       },
       method: 'POST',
       json: true,
