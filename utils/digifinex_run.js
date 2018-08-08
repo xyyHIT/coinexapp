@@ -419,10 +419,12 @@ function queryDealUser(cb) {
           changeBalance(buy_user, 'buy', deal_count, (market_change_cb) => {
             cb(market_change_cb);
           });
-        } else if (user_a_btc < deal_count && user_a_usdt < deal_usdt && user_b_btc < deal_count && user_b_usdt < deal_usdt) {
+        } else {
           var sell_user = 0;
           var buy_user = 1;
+          var sell_btc = user_a_btc;
           if (user_a_btc > user_b_btc) {
+            sell_btc = user_b_btc;
             sell_user = 1;
             buy_user = 0;
           }
@@ -430,7 +432,7 @@ function queryDealUser(cb) {
           async.parallel([
             // a 把usdt换成btc,买入btc
             function (change_cb) {
-              changeBalance(buy_user, 'buy', deal_count - user_a_btc, (market_change_cb) => {
+              changeBalance(buy_user, 'buy', deal_count - sell_btc, (market_change_cb) => {
                 if (market_change_cb != null && market_change_cb.user != null) {
                   change_cb(null, market_change_cb);
                 } else {
@@ -451,8 +453,6 @@ function queryDealUser(cb) {
           ], function (change_err, change_results) {
             cb(change_results[0]);
           })
-        } else {
-          cb({});
         }
       }
     }
