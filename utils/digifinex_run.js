@@ -205,6 +205,7 @@ function getMatchPrice(price_cb) {
           qs: paire_param
         }
         request(options, (err, response, body) => {
+          logger.info("trade_pairs ===> " + JSON.stringify(body));
           if (err) {
 
           } else {
@@ -423,20 +424,23 @@ function queryDealUser(cb) {
           var sell_user = 0; // 要卖出btc的账户
           var buy_user = 1; // 要买入btc的账户
           var sell_btc = user_a_btc;
+          var buy_btc = deal_count - user_b_btc;
           if (user_a_btc > user_b_btc) {
-            sell_btc = user_b_btc;
+            sell_btc = user_b_btc.toFixed(4);
+            buy_btc = (deal_count - user_a_btc).toFixed(4);
             sell_user = 1;
             buy_user = 0;
           }
           async.parallel([
             function (change_cb) {
-              changeBalance(buy_user, 'buy', deal_count, (market_change_cb) => {
-                if (market_change_cb != null && market_change_cb.user != null) {
-                  change_cb(null, market_change_cb);
-                } else {
-                  change_cb('market_change_cb buy error', market_change_cb);
-                }
-              })
+              if (buy_btc > 0)
+                changeBalance(buy_user, 'buy', buy_btc, (market_change_cb) => {
+                  if (market_change_cb != null && market_change_cb.user != null) {
+                    change_cb(null, market_change_cb);
+                  } else {
+                    change_cb('market_change_cb buy error', market_change_cb);
+                  }
+                })
             },
             // b 把btc换成usdt,卖出btc
             function (change_cb) {
