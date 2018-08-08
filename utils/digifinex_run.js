@@ -426,14 +426,14 @@ function queryDealUser(cb) {
           var sell_btc = user_a_btc;
           var buy_btc = deal_count - user_b_btc;
           if (user_a_btc > user_b_btc) {
-            sell_btc = user_b_btc.toFixed(4);
-            buy_btc = (deal_count - user_a_btc).toFixed(4);
+            sell_btc = Math.floor(user_b_btc * 10000) / 10000
+            buy_btc = Math.floor((deal_count - user_a_btc) * 10000) / 10000
             sell_user = 1;
             buy_user = 0;
           }
           async.parallel([
             function (change_cb) {
-              if (buy_btc > 0)
+              if (buy_btc > 0) {
                 changeBalance(buy_user, 'buy', buy_btc, (market_change_cb) => {
                   if (market_change_cb != null && market_change_cb.user != null) {
                     change_cb(null, market_change_cb);
@@ -441,16 +441,27 @@ function queryDealUser(cb) {
                     change_cb('market_change_cb buy error', market_change_cb);
                   }
                 })
+              } else {
+                change_cb(null, {
+                  user: sell_user
+                });
+              }
             },
             // b 把btc换成usdt,卖出btc
             function (change_cb) {
-              changeBalance(sell_user, 'sell', sell_btc, (market_change_cb) => {
-                if (market_change_cb != null && market_change_cb.user != null) {
-                  change_cb(null, market_change_cb);
-                } else {
-                  change_cb('market_change_cb sell error', market_change_cb);
-                }
-              })
+              if (sell_btc > 0) {
+                changeBalance(sell_user, 'sell', sell_btc, (market_change_cb) => {
+                  if (market_change_cb != null && market_change_cb.user != null) {
+                    change_cb(null, market_change_cb);
+                  } else {
+                    change_cb('market_change_cb sell error', market_change_cb);
+                  }
+                })
+              } else {
+                change_cb(null, {
+                  user: buy_user
+                });
+              }
             }
           ], function (change_err, change_results) {
             cb(change_results[0]);
