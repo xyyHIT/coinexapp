@@ -205,7 +205,7 @@ function marketOrder(user, type, amount, order_cb) {
       if (err) {
         order_cb({});
       } else {
-        if (order_body.code == 0) {
+        if (order_body.result == 0) {
           if (type == 'sell') {
             order_cb({
               user: user
@@ -215,7 +215,6 @@ function marketOrder(user, type, amount, order_cb) {
               user: user == settings.digifinex.length - 1 ? 0 : user + 1
             });
           }
-
         } else {
           order_cb({});
         }
