@@ -92,11 +92,41 @@ let digifinex = function (params, cb) {
   })
 }
 
+let bigone = function (access_id, secret_key, cb) {
+  let header = {
+    "alg": "HS256",
+    "typ": "JWT"
+  }
+  let tmp1 = new Buffer(JSON.stringify(header)).toString('base64');
+  let payload = {
+    "type": "OpenAPI",
+    "sub": access_id,
+    "nonce": Date.now() * 1000000
+  }
+  let tmp = new Buffer(JSON.stringify(payload)).toString('base64');
+  let str = (tmp1 + "." + tmp).replace(new RegExp('=', 'g'), '');
+  const hash = crypto.createHmac('sha256', secret_key)
+    .update(str).digest('base64').replace(new RegExp('=', 'g'), '');;
+  // let payload = {
+  //   "type": "OpenAPI",
+  //   "sub": "376df127-985d-4e23-9932-027cd29a74fd",
+  //   "nonce": 1533713182560000000
+  // }
+  // let tmp = new Buffer(JSON.stringify(payload)).toString('base64');
+  // console.log(JSON.stringify(payload));
+  // let hash = jwt.sign(payload, '89435FE853BD558F67E8D645BEBCBE81F6F3FB6A10B9F983C321B36906DDE3BB');
+  // console.log(hash.toString());
+  cb({
+    signature: str + "." + hash
+  })
+}
+
 module.exports = {
   signature,
   zbg,
   asiaex,
   coinall,
   bitforex,
-  digifinex
+  digifinex,
+  bigone
 }

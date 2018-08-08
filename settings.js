@@ -101,7 +101,14 @@ module.exports = {
     //   access_id: '5b63c289ea840',
     //   secret_key: '093f6feab9dea1e5bfa8edddc48f547a05b63c289'
     // }
-  ]
+  ],
+  bigone: [{
+    access_id: '376df127-985d-4e23-9932-027cd29a74fd',
+    secret_key: '89435FE853BD558F67E8D645BEBCBE81F6F3FB6A10B9F983C321B36906DDE3BB'
+  }, {
+    access_id: '376df127-985d-4e23-9932-027cd29a74fd',
+    secret_key: '89435FE853BD558F67E8D645BEBCBE81F6F3FB6A10B9F983C321B36906DDE3BB'
+  }]
 
 
 
