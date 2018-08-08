@@ -299,7 +299,7 @@ function limitOrder(user, type, price, amount, order_cb) {
     timestamp: currTime,
     type: type
   }
-  logger.info("market sell order ===> " + JSON.stringify(post_order))
+  logger.info(type + " market order ===> " + JSON.stringify(post_order))
   signature.digifinex(post_order, (cb) => {
     post_order.sign = cb.signature;
     let post_options = {
@@ -548,7 +548,7 @@ function changeBalance(user, type, amount, market_change_cb) {
   async.waterfall([
     function (market_order_cb) {
       queryNowPrice(user, type, amount, (now_price) => {
-        logger.info("buy now_price ===> " + JSON.stringify(now_price));
+        logger.info(type + " now_price ===> " + JSON.stringify(now_price));
         market_order_cb(null, now_price);
       })
     },
@@ -575,7 +575,6 @@ function changeBalance(user, type, amount, market_change_cb) {
           user: user == settings.digifinex.length - 1 ? 0 : user + 1
         });
       }
-
     }
   })
 }
