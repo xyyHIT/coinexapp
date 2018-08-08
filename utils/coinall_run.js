@@ -13,14 +13,14 @@ let market = 'OKB-USDT';
 let deal_count = 300;
 let deal_usdt = 1000;
 
-setInterval(intervalFunc, 1000 * 30);
+// setInterval(intervalFunc, 1000 * 30);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
