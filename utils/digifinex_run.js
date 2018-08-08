@@ -11,14 +11,14 @@ let market = 'usdt_btc';
 let deal_count = 0.02;
 let deal_usdt = 200;
 
-setInterval(intervalFunc, 1000 * 60 * 1);
+// setInterval(intervalFunc, 1000 * 60 * 1);
 
-function intervalFunc() {
-  logger.info("开始运行 ===>");
-  dealOrder((cb) => {
-    logger.info("本次运行结束 ===> " + JSON.stringify(cb));
-  })
-}
+// function intervalFunc() {
+logger.info("开始运行 ===>");
+dealOrder((cb) => {
+  logger.info("本次运行结束 ===> " + JSON.stringify(cb));
+})
+// }
 
 
 function dealOrder(deal_cb) {
@@ -420,19 +420,17 @@ function queryDealUser(cb) {
             cb(market_change_cb);
           });
         } else {
-          var sell_user = 0;
-          var buy_user = 1;
+          var sell_user = 0; // 要卖出btc的账户
+          var buy_user = 1; // 要买入btc的账户
           var sell_btc = user_a_btc;
           if (user_a_btc > user_b_btc) {
             sell_btc = user_b_btc;
             sell_user = 1;
             buy_user = 0;
           }
-          // a 用户btc较多，a保留btc，b保留usdt
           async.parallel([
-            // a 把usdt换成btc,买入btc
             function (change_cb) {
-              changeBalance(buy_user, 'buy', deal_count - sell_btc, (market_change_cb) => {
+              changeBalance(buy_user, 'buy', deal_count, (market_change_cb) => {
                 if (market_change_cb != null && market_change_cb.user != null) {
                   change_cb(null, market_change_cb);
                 } else {
@@ -442,7 +440,7 @@ function queryDealUser(cb) {
             },
             // b 把btc换成usdt,卖出btc
             function (change_cb) {
-              changeBalance(sell_user, 'sell', user_b_btc, (market_change_cb) => {
+              changeBalance(sell_user, 'sell', sell_btc, (market_change_cb) => {
                 if (market_change_cb != null && market_change_cb.user != null) {
                   change_cb(null, market_change_cb);
                 } else {
