@@ -10,10 +10,10 @@ let API_URI = 'https://www.coinall.com';
 let MIN_AMOUNT = 0.0001;
 let currency_arr = ["USDT", "OKB"];
 let market = 'OKB-USDT';
-let deal_count = 300;
+let deal_count = 200;
 let deal_usdt = 1000;
 
-setInterval(intervalFunc, 1000 * 30);
+setInterval(intervalFunc, 1000 * 120);
 
 function intervalFunc() {
   logger.info("开始运行 ===>");
